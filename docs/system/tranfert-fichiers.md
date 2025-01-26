@@ -12,6 +12,14 @@ scp nomUtilisateur@192.168.0.100:/etc/caddy/Caddyfile .
 ça me logue sur le serveur et copie le fichier Caddyfile dans le dossier où je me trouve. (terrminal local)
 ou ./ici/le/dossier/ou/je/veux/le/fichier/Caddyfile
 
+pour un dossier complet 
+
+```shell
+scp -r nomUtilisateur@192.168.0.100:/mercure/ .
+```
+
+ça me logue sur le serveur et copie le dossier mercure dans le dossier où je me trouve. (terrminal local)
+
 ```shell
 scp nomUtilisateur@192.168.0.100:/etc/caddy/Caddyfile ./ici/
 ```

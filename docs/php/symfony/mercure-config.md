@@ -10,7 +10,6 @@ Exemple minimaliste de configuration de Mercure dans une application Symfony pou
 ## Préréquis
 
 - Serveur Mercure installé: [Installation de Mercure](/docs/system/mercure-install)
-- Configuration du serveur Caddy principal et celui de Mercure: [Mercure Caddy](/docs/system/mercure-caddy)
 - Jwt Généré correctement: [Générer un token JWT pour Mercure](/docs/system/mercure-jwt-generator)
 
 ## Configuration de Mercure dans Symfony

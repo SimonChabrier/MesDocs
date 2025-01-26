@@ -57,7 +57,6 @@ export default defineConfig({
               { text: 'Installer PhpMyAdmin pour PHP 8.*', link: '/docs/system/phpmyadmin-install'},
               { text: 'Config User BDD', link: '/docs/system/bdd-create-user'},
               { text: 'Caddy => Apache', link: '/docs/system/caddy-apache' },
-              { text: 'Caddy => Mercure', link: '/docs/system/mercure-caddy' },
               { text: 'Installer Mercure', link: '/docs/system/mercure-install' },
               { text: 'Mercure Jwt', link: '/docs/system/mercure-jwt-generator' },
               { text: 'Ssh Serveur <=> Hôte Config', link: '/docs/system/ssh' },
