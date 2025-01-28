@@ -92,12 +92,10 @@ vscode.simschab.cloud {
 - Exemple, me donner les droits en écriture à tous les dossier contenus dans `html`
 
 ```shell
-sudo chown -R www-data:simon /var/www/html
-sudo chmod -R g+rw /var/www/html
-sudo chmod -R g+s /var/www/html
+sudo chown -R simon:www-data /var/www/html
 ```
 
-le propriétaire est www-data et le groupe est simon, le user connecté au serveur mais je peux écire dans les dossiers du serveur et modifier les fichiers.
+le propriétaire est simon et le groupe est www-data, donc simon peut écrire dans les dossiers du serveur comme www-data peut le faire.
 
 - On donne les droits en écriture au groupe www-data et le user connecté au serveur doit appartenir à ce groupe pour pouvoir écrire dans les dossiers.
 

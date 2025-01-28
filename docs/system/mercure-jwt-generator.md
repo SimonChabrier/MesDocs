@@ -11,6 +11,14 @@ description: Générer un token JWT pour Mercure avec jwt.io tout en ajoutant de
 
 - Copier la clé secrète de Mercure `subscriber_jwt` et/ou `publisher_jwt` dans le champ `VERIFY SIGNATURE` et la clé secrète de Mercure dans le champ `VERIFY SIGNATURE` dans 'input `your-256-bit-secret`'
 
+🚩 Regarder ma page de doc sur `Installer Mercure` parce que les varibales sont définis dans :
+
+```shell
+sudo nano /etc/environment
+```
+
+C'est bien ces clés là qu'il faut copier dans jwt.io pour générer un token JWT valide pour mon installation de Mercure.
+
 - Dans le champ `PAYLOAD` ajouter les claims sous forme de JSON - au minimum il faut ajouter les claims `mercure` avec les droits `publish` et `subscribe` pour que le token soit valide pour Mercure :
 
 ```json
@@ -53,16 +61,21 @@ openssl rand -base64 64
 kQcRTUoPdd8SRc1jPlDMBNOkuS8bmEXQLUCsnIZU61xsiVNwuv9xgp0JeLmRHdmPuYuoDzl3QDtSJd1Sn+Pe8w==
 ```
 
-Remplacer la clé par défaut par la clé générée dans le fichier `Caddyfile.dev` :
+Remplacer la clé par défaut par la clé générée dans le fichier où j'ai stocké les variables d'environnement globales :
 
 ```shell
-publisher_jwt kQcRTUoPdd8SRc1jPlDMBNOkuS8bmEXQLUCsnIZU61xsiVNwuv9xgp0JeLmRHdmPuYuoDzl3QDtSJd1Sn+Pe8w==
-subscriber_jwt kQcRTUoPdd8SRc1jPlDMBNOkuS8bmEXQLUCsnIZU61xsiVNwuv9xgp0JeLmRHdmPuYuoDzl3QDtSJd1Sn+Pe8w==
+sudo nano /etc/environment
 ```
 
-Il fadre générer un nouveau token JWT avec jwt.io pour tester les nouvelles clés et donc mettre à jour le champ input `your-256-bit-secret` avec la nouvelle clé générée et déclarée dans le fichier `Caddyfile.dev` pour tester les nouvelles clés.
+```shell
+MERCURE_PUBLISHER_JWT_KEY=kQcRTUoPdd8SRc1jPlDMBNOkuS8bmEXQLUCsnIZU61xsiVNwuv9xgp0JeLmRHdmPuYuoDzl3QDtSJd1Sn+Pe8w==
+MERCURE_SUBSCRIBER_JWT_KEY=kQcRTUoPdd8SRc1jPlDMBNOkuS8bmEXQLUCsnIZU61xsiVNwuv9xgp0JeLmRHdmPuYuoDzl3QDtSJd1Sn+Pe8w==
+```
+
+Sauver et quitter le fichier.
+
+Il fadra générer un nouveau token JWT avec jwt.io pour tester les nouvelles clés et donc mettre à jour le champ input `your-256-bit-secret` avec la nouvelle clé générée et déclarée dans le fichier `Caddyfile.dev` pour tester les nouvelles clés.
 
 ## Conclusion
 
-C'est terminé ça me permet de tester avec Isomnia ou ThunderCLient les requêtes POST sur Mercure pour voir si tout fonctionne bien.
-C'est la configuration minimale qui permet de faire tourner le système de publication/abonnement de Mercure et de travailler avec dasn des application Symfony ou autre qui ont besoin de Mercure pour publier et abonner des messages en temps réel. Ca permet de changer l'état du DOM par exemple en temps réel sans avoir à recharger la page on peut notifier l'utilisateur d'un changement de statut ou d'une nouvelle information qui vient d'arriver sur le serveur....
+C'st terminé il faut veiller à générer des Token JWT signés correctement avec les bonnes clés récupérées dans les variables d'environnement pour sécuriser l'accès à Mercure et si je change les clés il faudra bien sûr générer un nouveau token JWT avec les nouvelles clés pour que Mercure fonctionne correctement.

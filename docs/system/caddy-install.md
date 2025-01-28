@@ -1,6 +1,6 @@
 ---
-title : Installer Caddy Serveur sur Ubuntu Server 20.04
-description : Guide d'installation Caddy Serveur sur Ubuntu Server 20.0
+title : Installer Caddy Serveur sur Ubuntu Server 20.0.4
+description : Guide d'installation Caddy Serveur sur Ubuntu Server 20.0.4
 ---
 
 # Prérequis
