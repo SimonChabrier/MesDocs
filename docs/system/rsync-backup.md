@@ -132,6 +132,11 @@ A ce moment là il faudra refaire la command de sauvegarde complète pour recomm
 ```shell
 grep rsync /var/log/syslog | tail -20 
 ```
+- Vider le fichier de log de backup
+
+```shell
+> /var/log/backup.log
+```
 
 - Afficher les détails (y compris la taille) du fichier de log de backup
 
