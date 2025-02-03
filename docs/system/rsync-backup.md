@@ -47,21 +47,23 @@ Si je veux faire directement une sauvegarde complète pour tester la première f
 /usr/bin/rsync -avv -aAX --delete --inplace --no-whole-file --numeric-ids --bwlimit=1000 --recursive --one-file-system --rsh="ssh -T -c aes128-gcm@openssh.com -o Compression=no -x" --exclude="swap.img" / /mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) --no-ignore-errors >> /var/log/backup.log 2>&1
 ```
 
-`-aAX : Préserve les attributs des fichiers et les systèmes de fichiers.`
 
-`--delete : Supprime les fichiers de la destination absents de la source.`
-
-`--inplace : Met à jour les fichiers sans les recréer.`
-
-`--bwlimit=1000 : Limite la bande passante à 1000 KB/s.`
-
-`--rsh="ssh ..." : Utilise SSH avec des options de chiffrement spécifiques.`
-
-`$(date +\%Y-\%m-\%d_%H-%M-%S) : Crée un répertoire de sauvegarde daté pour chaque exécution.`
-
-`--no-ignore-errors : Continue l'exécution en cas d'erreur.`
-
-`>> /var/log/backup.log 2>&1 : Redirige la sortie standard et d'erreur vers le fichier de log.`
+`/usr/bin/rsync : Chemin vers l'exécutable rsync`
+`-avv : Mode archive avec copie récursive et affichage verbeux détaillé`  
+`-aAX : Préserve les attributs étendus et les ACL`  
+`--delete : Supprime les fichiers de la destination absents de la source`  
+`--inplace : Met à jour les fichiers directement sur la destination sans créer de copie temporaire`  
+`--no-whole-file : Utilise la synchronisation delta pour transférer uniquement les parties modifiées`  
+`--numeric-ids : Conserve les identifiants numériques des utilisateurs et groupes`  
+`--bwlimit=1000 : Limite la bande passante à 1000 KB/s`  
+`--recursive : Copie récursivement les répertoires et fichiers`  
+`--one-file-system : Ne traverse pas les points de montage (reste sur le même système de fichiers)`  
+`--rsh="ssh -T -c aes128-gcm@openssh.com -o Compression=no -x" : Utilise SSH avec : -T (désactive le pseudo-terminal), -c aes128-gcm@openssh.com (chiffrement), -o Compression=no (désactive la compression), -x (désactive X11)`  
+`--exclude="swap.img" : Exclut le fichier swap.img de la synchronisation`  
+`/ : Spécifie la source (la racine du système)`  
+`/mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) : Spécifie la destination, en créant un dossier de sauvegarde horodaté`  
+`--no-ignore-errors : Continue la synchronisation même en cas d'erreur`  
+`>> /var/log/backup.log 2>&1 : Redirige la sortie standard et les erreurs vers le fichier de log`
 
 J'exclu swap.img de la sauvegarde car il est inutile de sauvegarder le swap c'est un fichier temporaire qui sera recréé au prochain démarrage du système et il peut peser plusieurs Go.
 
@@ -107,6 +109,26 @@ sudo rm -rf /mnt/backup/backupfull/*
 ```
 
 A ce moment là il faudra refaire la command de sauvegarde complète pour recommencer le processus de sauvegarde...et ensuite la cron job se chargera de faire les sauvegardes incrémentielles.
+
+## Commandes complémentaires
+
+-  Afficher les 20 dernières lignes contenant "rsync" dans les logs système
+
+```shell
+grep rsync /var/log/syslog | tail -20 
+```
+
+- Afficher les détails (y compris la taille) du fichier de log de backup
+
+```shell
+ls -l /var/log/backup.log
+```
+
+- Afficher les 5 dernières sauvegardes (triées par date décroissante)
+
+```shell
+ls -lt /mnt/backup/backupfull/ | head -n 5
+```
 
 ## Conclusion
 
