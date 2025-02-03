@@ -49,20 +49,35 @@ Si je veux faire directement une sauvegarde complète pour tester la première f
 
 
 `/usr/bin/rsync : Chemin vers l'exécutable rsync`
+
 `-avv : Mode archive avec copie récursive et affichage verbeux détaillé`  
+
 `-aAX : Préserve les attributs étendus et les ACL`  
+
 `--delete : Supprime les fichiers de la destination absents de la source`  
+
 `--inplace : Met à jour les fichiers directement sur la destination sans créer de copie temporaire`  
+
 `--no-whole-file : Utilise la synchronisation delta pour transférer uniquement les parties modifiées`  
+
 `--numeric-ids : Conserve les identifiants numériques des utilisateurs et groupes`  
+
 `--bwlimit=1000 : Limite la bande passante à 1000 KB/s`  
-`--recursive : Copie récursivement les répertoires et fichiers`  
+
+`--recursive : Copie récursivement les répertoires et fichiers` 
+
 `--one-file-system : Ne traverse pas les points de montage (reste sur le même système de fichiers)`  
+
 `--rsh="ssh -T -c aes128-gcm@openssh.com -o Compression=no -x" : Utilise SSH avec : -T (désactive le pseudo-terminal), -c aes128-gcm@openssh.com (chiffrement), -o Compression=no (désactive la compression), -x (désactive X11)`  
+
 `--exclude="swap.img" : Exclut le fichier swap.img de la synchronisation`  
+
 `/ : Spécifie la source (la racine du système)`  
+
 `/mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) : Spécifie la destination, en créant un dossier de sauvegarde horodaté`  
+
 `--no-ignore-errors : Continue la synchronisation même en cas d'erreur`  
+
 `>> /var/log/backup.log 2>&1 : Redirige la sortie standard et les erreurs vers le fichier de log`
 
 J'exclu swap.img de la sauvegarde car il est inutile de sauvegarder le swap c'est un fichier temporaire qui sera recréé au prochain démarrage du système et il peut peser plusieurs Go.
