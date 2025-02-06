@@ -68,6 +68,7 @@ export default defineConfig({
               { text: 'Installer Matomo', link: '/docs/system/matomo' },
               { text: 'Matomo Astro', link: '/docs/system/matomo-astro' },
               { text: 'Matomo VitePress', link: '/docs/system/matomo-vitepress' },
+              { text: 'Mailhog Install', link: '/docs/system/mailhog.md' },
             ]
           }
       ],
