@@ -78,7 +78,7 @@ export default defineConfig({
           items: [
             { text: 'Symfony', link: '/docs/php/symfony/commandes-utiles.md' },
             { text: 'Mercure', link: '/docs/php/symfony/mercure-config' },
-            { text: 'Mercure', link: '/docs/php/symfony/debug-bar-ajax' },
+            { text: 'Symfony DebugBar Ajax', link: '/docs/php/symfony/debug-bar-ajax' },
           ]
         }
       ],
