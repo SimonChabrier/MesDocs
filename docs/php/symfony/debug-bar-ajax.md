@@ -11,7 +11,7 @@ Quand on utilise des CSP restrictives avec Symfony & NelmioSecurity, la debug ba
 
 ## Solution
 
-Regarder dans vendor, il y a :`'Symfony\Bundle\WebProfilerBundle\Csp\ContentSecurityPolicyHandler'` at la classe contient une méthode `public function disableCsp()`
+Regarder dans vendor, il y a :`'Symfony\Bundle\WebProfilerBundle\Csp\ContentSecurityPolicyHandler'` et la classe contient une méthode `public function disableCsp()`
 
 
 ## 1 Faire Service 

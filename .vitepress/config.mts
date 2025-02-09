@@ -62,6 +62,7 @@ export default defineConfig({
               { text: 'Caddy => Apache', link: '/docs/system/caddy-apache' },
               { text: 'Installer Mercure', link: '/docs/system/mercure-install' },
               { text: 'Mercure Jwt', link: '/docs/system/mercure-jwt-generator' },
+              { text: 'Ssh OSX <=> Machine', link: '/docs/system/osx-ssh.md' },
               { text: 'Ssh Serveur <=> Hôte Config', link: '/docs/system/ssh' },
               { text: 'Ssh Machine <=> GitHub', link: '/docs/system/ssh-github' },
               { text: 'Sécurité Ip BlackList', link: '/docs/system/black-list' },
