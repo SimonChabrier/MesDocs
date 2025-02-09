@@ -79,8 +79,9 @@ export default defineConfig({
           text: 'Base de connaissances Php',
           items: [
             { text: 'Symfony', link: '/docs/php/symfony/commandes-utiles.md' },
-            { text: 'Mercure', link: '/docs/php/symfony/mercure-config' },
+            { text: 'Symfony GitHub Action', link: '/docs/php/symfony/symfony-github-actions.md' },
             { text: 'Symfony DebugBar Ajax', link: '/docs/php/symfony/debug-bar-ajax' },
+            { text: 'Mercure', link: '/docs/php/symfony/mercure-config' },
           ]
         }
       ],
