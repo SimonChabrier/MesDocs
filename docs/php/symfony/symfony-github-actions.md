@@ -1,6 +1,6 @@
 ---
-title : "configurer un pipeline CI/CD avec GitHub Actions pour un projet Symfony 7.2"
-description : "Configurer un pipeline CI/CD avec GitHub Actions pour un projet Symfony 7.2 et Node.js"
+title : "Comment configurer un pipeline CI/CD avec GitHub Actions pour un projet Symfony 7.2"
+description : "Comment configurer un pipeline CI/CD avec GitHub Actions pour un projet Symfony 7.2 et Node.js facilement"
 ---
 
 # Configurer un pipeline CI/CD avec GitHub Actions pour un projet Symfony 7.2 / Node.js
@@ -14,7 +14,7 @@ ssh-keygen -t ed25519 -C "commentaire identifiant la clé" -f ~/.ssh/nom_de_la_c
 cat ~/.ssh/nom_de_la_cle_deploy.pub
 ```
 
-***Clé à générer sans rensigner de passphrase pour ne pas qu'lle nécessite de mot de passe pour être utilisée.***
+***Clé à générer sans rensigner de passphrase pour ne pas qu'elle nécessite de mot de passe pour être utilisée.***
 
 
 ## Préparation projet

@@ -1,6 +1,9 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
+   sitemap: {
+      hostname: 'https://doc.simschab.cloud',
+    },
     lang: 'fr-FR',
     head: [
       // Ajout du favicon (obligatoire si tu veux éviter l'erreur 404)
@@ -56,6 +59,7 @@ export default defineConfig({
               { text: 'Installer CaddyServer', link: '/docs/system/caddy-install' },
               { text: 'Cockpit', link: '/docs/system/cockpit' },
               { text: 'Configurer CaddyServer', link: '/docs/system/caddy-caddyfile' },
+              { text: 'CaddyServer Local https', link: '/docs/system/caddy-local-https.md' },
               { text: 'Maintenance CaddyServer', link: '/docs/system/caddy-commandes' },
               { text: 'BasicAuth CaddyServer', link: '/docs/system/caddy-basicauth' },
               { text: 'Installer PhpMyAdmin pour PHP 8.*', link: '/docs/system/phpmyadmin-install'},

@@ -44,7 +44,12 @@ sudo mkdir /mnt/backup/backupfull
 Si je veux faire directement une sauvegarde complète pour tester la première fois :
 
 ```shell
-/usr/bin/rsync -avv -aAX --delete --inplace --no-whole-file --numeric-ids --bwlimit=1000 --recursive --one-file-system --rsh="ssh -T -c aes128-gcm@openssh.com -o Compression=no -x" --exclude="swap.img" / /mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) --no-ignore-errors >> /var/log/backup.log 2>&1
+/usr/bin/rsync -avvv -AAX --delete --inplace --no-whole-file --numeric-ids \
+  --recursive --one-file-system \
+  --info=progress2 --partial \
+  --exclude={"/proc/*","/sys/*","/dev/*","/run/*","/tmp/*","swap.img"} \
+  / /mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) \
+  --no-ignore-errors >> /var/log/backup.log 2>> /var/log/backup_errors.log
 ```
 
 
@@ -62,15 +67,15 @@ Si je veux faire directement une sauvegarde complète pour tester la première f
 
 `--numeric-ids : Conserve les identifiants numériques des utilisateurs et groupes`  
 
-`--bwlimit=1000 : Limite la bande passante à 1000 KB/s`  
-
 `--recursive : Copie récursivement les répertoires et fichiers` 
 
-`--one-file-system : Ne traverse pas les points de montage (reste sur le même système de fichiers)`  
+`--one-file-system : Ne traverse pas les points de montage (reste sur le même système de fichiers)`
 
-`--rsh="ssh -T -c aes128-gcm@openssh.com -o Compression=no -x" : Utilise SSH avec : -T (désactive le pseudo-terminal), -c aes128-gcm@openssh.com (chiffrement), -o Compression=no (désactive la compression), -x (désactive X11)`  
+`--info=progress2 : Affiche la progression de la copie avec des informations détaillées`  
 
-`--exclude="swap.img" : Exclut le fichier swap.img de la synchronisation`  
+`--partial : Permet de reprendre une copie interrompue`
+ 
+`--exclude={"/proc/*","/sys/*","/dev/*","/run/*","/tmp/*","swap.img"} : Exclut les répertoires système et le fichier swap.img`  
 
 `/ : Spécifie la source (la racine du système)`  
 
@@ -104,7 +109,7 @@ crontab -e
 Ajouter cette entrée pour exécuter la commande de sauvegarde incrémentale chaque jour à 4h00 :
 
 ```shell
-0 4 * * * /usr/bin/rsync -avv -aAX --delete --inplace --no-whole-file --numeric-ids --bwlimit=1000 --recursive --one-file-system --rsh="ssh -T -c aes128-gcm@openssh.com -o Compression=no -x" --exclude="swap.img" --link-dest=/mnt/backup/backupfull/$(ls -1t /mnt/backup/backupfull/ | head -n 1) / /mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) >> /var/log/backup.log 2>&1
+0 4 * * * /usr/bin/rsync -avvv -AAX --delete --inplace --no-whole-file --numeric-ids --recursive --one-file-system --info=progress2 --partial --exclude=/proc/* --exclude=/sys/* --exclude=/dev/* --exclude=/run/* --exclude=/tmp/* --exclude=swap.img / /mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) --no-ignore-errors >> /var/log/backup.log 2>> /var/log/backup_errors.log
 ```
 
 ## Gestion des Logs
