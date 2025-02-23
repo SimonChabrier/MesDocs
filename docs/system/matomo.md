@@ -70,28 +70,16 @@ Ca permet de forcer l'utilisation de SSL et de désactiver le déclenchement de 
 - Si il faut augmenter le `max_allowed_packet` de la base de données :
 
 ```bash
-sudo nano /etc/mysql/my.cnf
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
 ```
 
-ou 
-
-```bash
-sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
-```
-
-- Ajouter ou modifier la ligne suivante sous [mysqld]
+- Pour MariaDb, ajouter en haut du fichier ou modifier la ligne suivante sous [mysqld] (ajouter [mysqld] si il n'existe pas) :
 
 ```bash
 max_allowed_packet=64M
 ```
 
-- Remettre en route le serveur mysql :
-
-```bash
-sudo systemctl restart mysql
-```
-
-ou 
+- Remettre en route le serveur de base de données :
 
 ```bash
 sudo systemctl restart mariadb
