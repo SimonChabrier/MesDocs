@@ -50,7 +50,6 @@ Si je veux faire directement une sauvegarde complète pour tester la première f
   --exclude={"/proc/*","/sys/*","/dev/*","/run/*","/tmp/*","swap.img"} \
   / /mnt/backup/backupfull/ \
   --no-ignore-errors >> /var/log/backup.log 2>> /var/log/backup_errors.log
-
 ```
 
 
