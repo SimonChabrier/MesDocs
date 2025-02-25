@@ -48,8 +48,9 @@ Si je veux faire directement une sauvegarde complète pour tester la première f
   --recursive --one-file-system \
   --info=progress2 --partial \
   --exclude={"/proc/*","/sys/*","/dev/*","/run/*","/tmp/*","swap.img"} \
-  / /mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) \
+  / /mnt/backup/backupfull/ \
   --no-ignore-errors >> /var/log/backup.log 2>> /var/log/backup_errors.log
+
 ```
 
 
@@ -109,7 +110,7 @@ crontab -e
 Ajouter cette entrée pour exécuter la commande de sauvegarde incrémentale chaque jour à 4h00 :
 
 ```shell
-0 4 * * * /usr/bin/rsync -avvv -AAX --delete --inplace --no-whole-file --numeric-ids --recursive --one-file-system --info=progress2 --partial --exclude=/proc/* --exclude=/sys/* --exclude=/dev/* --exclude=/run/* --exclude=/tmp/* --exclude=swap.img / /mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) --no-ignore-errors >> /var/log/backup.log 2>> /var/log/backup_errors.log
+0 4 * * * /usr/bin/rsync -avvv -AAX --delete --inplace --no-whole-file --numeric-ids --recursive --one-file-system --info=progress2 --partial --exclude=/proc/* --exclude=/sys/* --exclude=/dev/* --exclude=/run/* --exclude=/tmp/* --exclude=swap.img / /mnt/backup/backupfull/ --no-ignore-errors >> /var/log/backup.log 2>> /var/log/backup_errors.log
 ```
 
 ## Gestion des Logs
