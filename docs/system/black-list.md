@@ -1,3 +1,17 @@
+---
+title: Surveillance automatique des IPs malveillantes via les logs Caddy
+description: Script Bash avec iptables pour bloquer automatiquement les IPs générant trop d'erreurs HTTP (404/500) via les logs JSON de Caddy.
+date: 2025-07-19
+updated: 2025-07-19
+author: Simon Chabrier
+tags: [caddy, sécurité, iptables, firewall, logs, bash, monitoring, ubuntu]
+license: MIT
+version: 1.0
+language: fr
+status: validé
+---
+
+
 # Créer une blacklist IP en fonction des logs serveurs récupéres dans un fichier
 
 - Objectif rejeter les requêtes des clients qui génèrent des erreurs 404 et 500 trop fréquemment en les ajoutant à une blacklist. En général c'est que le client est en train de scanner le serveur pour trouver des failles de sécurité ou pour faire du scraping de données. C'est déjà un premier niveau de protection contre les attaques de type DDoS.
