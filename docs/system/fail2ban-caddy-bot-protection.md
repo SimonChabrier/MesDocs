@@ -8,6 +8,7 @@ description: Bloquer les bots qui scannent des URLs WordPress via Caddy et Fail2
 ## Objectif
 
 Empêcher les bots de scanner inutilement des chemins typiques de WordPress (`/wp-admin`, `/xmlrpc.php`, `/wp-login.php`, etc.) sur des serveurs qui **n’utilisent pas WordPress**.
+On empêche aussi les requêtes malveillantes sur des fichiers sensibles comme `.env`, `.git`, etc.
 
 Cette double protection permet :
 - d’économiser des ressources serveur,
@@ -26,10 +27,10 @@ On crée d’abord une règle réutilisable dans le bloc global du `Caddyfile` :
 ```txt
 # caddyfile (bloc global, tout en haut)
 (wp-bot-protection) {
-    @wp_bots {
-        path_regexp wp_paths ^/(wp-admin|wp-content|wp-includes|wp-.*\.php|xmlrpc\.php)$
-    }
-    respond @wp_bots "Access denied" 403
+	@_bots {
+		path_regexp wp_paths ^/(wp-admin|wp-content|wp-includes|wp-.*\.php|xmlrpc\.php|\.env(\..*)?$|phpinfo.*|\.git.*|\.aws.*|\.htaccess|\.DS_Store|\.vscode|\.idea|\.editorconfig|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|docker-compose\.ya?ml|application\.properties|settings\.py|config\.env|.*\.(bak|sql|ini|log|conf|yml|xml|old))$
+	}
+	respond @_bots "Access denied" 403
 }
 ```
 
