@@ -52,8 +52,8 @@ LOG_DIR="/var/log/caddy"
 LOG_FILES="$LOG_DIR/requests*.json"
 BLACKLIST_FILE="/etc/caddy/blacklist.txt"
 LOCAL_IP="192.168.0.254"
-THRESHOLD=5
-DELAY=180
+THRESHOLD=5            # Nombre max de requêtes dans la même seconde
+DELAY=180              # Temps entre chaque scan
 
 # Nettoyage propre
 cleanup() {
@@ -64,15 +64,12 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 # Vérification des outils nécessaires
-if ! command -v iptables &>/dev/null; then
-    echo "Erreur : iptables non installé"
-    exit 1
-fi
-
-if ! command -v jq &>/dev/null; then
-    echo "Erreur : jq non installé"
-    exit 1
-fi
+for cmd in iptables jq date; do
+    if ! command -v "$cmd" &>/dev/null; then
+        echo "Erreur : $cmd non installé"
+        exit 1
+    fi
+done
 
 echo "Démarrage de la surveillance des logs..."
 
@@ -81,7 +78,6 @@ if ! sudo iptables -L BLOCKED &>/dev/null; then
     sudo iptables -N BLOCKED && echo "Chaîne BLOCKED créée."
 fi
 
-# Boucle infinie
 while true; do
     echo "-------------------------------------"
     echo "Analyse des logs à $(date)"
@@ -90,19 +86,39 @@ while true; do
 
     for file in $LOG_FILES; do
         if [ -r "$file" ] && jq empty "$file" 2>/dev/null; then
-            jq -r 'select(.status == 404 or .status == 500) | .request.client_ip' "$file" >> "$TMP_FILE"
+            jq -r 'select(.status == 404 or .status == 500) | [.request.client_ip, .ts] | @tsv' "$file" >> "$TMP_FILE"
         else
             echo "Fichier ignoré (illisible ou invalide JSON) : $file"
         fi
     done
 
-    # Compter, filtrer par seuil, exclure l’IP locale
-    sort "$TMP_FILE" | uniq -c | awk -v threshold="$THRESHOLD" '$1 >= threshold {print $2}' | grep -v "^$LOCAL_IP$" > "$BLACKLIST_FILE"
+    # Préparation d'une nouvelle liste temporaire
+    TMP_BLACKLIST=$(mktemp)
+
+    # Analyse : IPs qui font ≥ $THRESHOLD requêtes dans la même seconde
+    awk -v threshold="$THRESHOLD" -v local_ip="$LOCAL_IP" '
+    function to_second(ts) {
+        split(ts, a, "T")
+        split(a[2], b, ":")
+        split(b[3], c, ".")
+        return a[1] "T" b[1] ":" b[2] ":" c[1]  # timestamp tronqué à la seconde
+    }
+    {
+        ip = $1
+        ts = to_second($2)
+        key = ip "|" ts
+        count[key]++
+        if (count[key] == threshold && ip != local_ip) {
+            print ip
+        }
+    }' "$TMP_FILE" | sort -u > "$TMP_BLACKLIST"
+
     rm "$TMP_FILE"
 
-    if [ -s "$BLACKLIST_FILE" ]; then
+    # Application du bannissement
+    if [ -s "$TMP_BLACKLIST" ]; then
         echo "IPs à bloquer :"
-        cat "$BLACKLIST_FILE"
+        cat "$TMP_BLACKLIST" | tee "$BLACKLIST_FILE"
 
         sudo iptables -F BLOCKED
 
@@ -116,8 +132,10 @@ while true; do
         sudo iptables -A INPUT -j BLOCKED
     else
         echo "Aucune IP à blacklister."
+        > "$BLACKLIST_FILE"
     fi
 
+    rm "$TMP_BLACKLIST"
     sleep "$DELAY"
 done
 ````
