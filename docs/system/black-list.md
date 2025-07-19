@@ -50,7 +50,6 @@ Contenu du script :
 
 ```bash
 #!/bin/bash
-
 LOG_DIR="/var/log/caddy"
 LOG_FILES="$LOG_DIR/requests*.json"
 BLACKLIST_FILE="/etc/caddy/blacklist.txt"
@@ -58,6 +57,7 @@ LOCAL_IP="192.168.0.254"
 THRESHOLD=5
 DELAY=180
 
+# Nettoyage propre à l'arrêt
 cleanup() {
     echo "Arrêt du script monitor_blacklist.sh"
     pkill -f "sleep"
@@ -65,6 +65,7 @@ cleanup() {
 }
 trap cleanup SIGINT SIGTERM
 
+# Vérification des outils nécessaires
 for cmd in iptables jq; do
     if ! command -v $cmd &>/dev/null; then
         echo "Erreur : $cmd non installé"
@@ -74,16 +75,19 @@ done
 
 echo "Démarrage de la surveillance des logs..."
 
+# Création de la chaîne BLOCKED si elle n'existe pas
 if ! sudo iptables -L BLOCKED &>/dev/null; then
     sudo iptables -N BLOCKED && echo "Chaîne BLOCKED créée."
 fi
 
+# Boucle continue
 while true; do
     echo "-------------------------------------"
     echo "Analyse des logs à $(date)"
 
     TMP_FILE=$(mktemp)
 
+    # Extraction des timestamps et IP depuis les fichiers JSON
     for file in $LOG_FILES; do
         if [ -r "$file" ] && jq empty "$file" 2>/dev/null; then
             jq -r '. | [.ts, .request.client_ip] | @tsv' "$file" >> "$TMP_FILE"
@@ -92,6 +96,10 @@ while true; do
         fi
     done
 
+    # Réinitialiser la blacklist
+    > "$BLACKLIST_FILE"
+
+    # Détecter les IPs avec plus de $THRESHOLD requêtes dans la même seconde
     awk -F'\t' '{ ipcount[int($1)" "$2]++ } END {
         for (key in ipcount) {
             split(key, parts, " ")
@@ -99,19 +107,23 @@ while true; do
                 print parts[2]
             }
         }
-    }' "$TMP_FILE" | grep -v "^$LOCAL_IP$" | sort -u > "$BLACKLIST_FILE"
+    }' "$TMP_FILE" | grep -v "^$LOCAL_IP$" | sort -u >> "$BLACKLIST_FILE"
+
     rm "$TMP_FILE"
 
     if [ -s "$BLACKLIST_FILE" ]; then
         echo "IPs à bloquer :"
         cat "$BLACKLIST_FILE"
 
+        # Vider la chaîne BLOCKED
         sudo iptables -F BLOCKED
 
+        # Ajouter chaque IP à BLOCKED
         while read -r ip; do
             sudo iptables -A BLOCKED -s "$ip" -j REJECT
         done < "$BLACKLIST_FILE"
 
+        # S'assurer que la chaîne est bien liée à INPUT
         if ! sudo iptables -L INPUT -n | grep -q 'BLOCKED'; then
             sudo iptables -A INPUT -j BLOCKED
         fi
@@ -121,6 +133,7 @@ while true; do
 
     sleep "$DELAY"
 done
+
 ```
 
 ## Rendre le script exécutable
