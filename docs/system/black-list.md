@@ -50,6 +50,7 @@ Contenu du script :
 
 ```bash
 #!/bin/bash
+
 LOG_DIR="/var/log/caddy"
 LOG_FILES="$LOG_DIR/requests*.json"
 BLACKLIST_FILE="/etc/caddy/blacklist.txt"
@@ -133,7 +134,6 @@ while true; do
 
     sleep "$DELAY"
 done
-
 ```
 
 ## Rendre le script exécutable

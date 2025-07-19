@@ -1,40 +1,42 @@
+
 ---
-title: Protéger un serveur Caddy contre les scans WordPress
-description: Bloquer les bots qui scannent des URLs WordPress via Caddy et Fail2Ban avec iptables.
+title: Protection avancée contre les scans et attaques automatisés avec Caddy et Fail2Ban
+description: Protégez efficacement vos serveurs Caddy contre les scans de bots et les requêtes malveillantes, bien au-delà des seules attaques WordPress.
 ---
 
-# Protection des serveurs non WordPress contre les scans automatisés
+# Protection élargie contre les scans automatisés et attaques par bots (Caddy + Fail2Ban)
 
 ## Objectif
 
-Empêcher les bots de scanner inutilement des chemins typiques de WordPress (`/wp-admin`, `/xmlrpc.php`, `/wp-login.php`, etc.) sur des serveurs qui **n’utilisent pas WordPress**.
-On empêche aussi les requêtes malveillantes sur des fichiers sensibles comme `.env`, `.git`, etc.
+Mettre en place une **défense proactive** contre tous les scans et attaques automatisés sur des serveurs **ne faisant pas tourner WordPress**, mais aussi **toute tentative d'accès à des fichiers ou chemins sensibles** (fichiers de config, dumps, répertoires cachés, etc.).
 
-Cette double protection permet :
-- d’économiser des ressources serveur,
-- de nettoyer les logs des requêtes parasites,
-- de refuser proprement et rapidement les scans automatisés,
-- de **bannir définitivement** les IPs hostiles si elles insistent.
+L’idée est de :
+- **Empêcher** l’accès à des chemins ou fichiers sensibles utilisés par WordPress, mais **aussi par d'autres outils courants** (PHP, Python, Node, etc.),
+- **Bloquer** proprement et instantanément toute requête suspecte dès Caddy,
+- **Bannir automatiquement et définitivement** les IPs qui insistent via Fail2Ban et iptables,
+- **Réduire la pollution des logs** et l’utilisation inutile de ressources serveur.
+
+Cette protection est adaptée à tous types de serveurs web publics, pas seulement à ceux exposés aux attaques WordPress.
 
 ---
 
-# 1. Blocage immédiat avec Caddy
+## 1. Blocage immédiat avec Caddy
 
-## Mise en place
+### Mise en place
 
-On crée d’abord une règle réutilisable dans le bloc global du `Caddyfile` :
+Ajoutez une **règle de protection réutilisable** en haut de votre `Caddyfile` :
 
 ```txt
 # caddyfile (bloc global, tout en haut)
 (bot-protection) {
-	@_bots {
-		path_regexp wp_paths ^/(wp-admin|wp-content|wp-includes|wp-.*\.php|xmlrpc\.php|\.env(\..*)?$|phpinfo.*|\.git.*|\.aws.*|\.htaccess|\.DS_Store|\.vscode|\.idea|\.editorconfig|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|docker-compose\.ya?ml|application\.properties|settings\.py|config\.env|.*\.(bak|sql|ini|log|conf|yml|xml|old))$
-	}
-	respond @_bots "Access denied" 403
+    @_bots {
+        path_regexp sensitive_paths ^/(wp-admin|wp-content|wp-includes|wp-.*\.php|xmlrpc\.php|\.env(\..*)?$|phpinfo.*|\.git.*|\.aws.*|\.htaccess|\.DS_Store|\.vscode|\.idea|\.editorconfig|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|docker-compose\.ya?ml|application\.properties|settings\.py|config\.env|.*\.(bak|sql|ini|log|conf|yml|xml|old))$
+    }
+    respond @_bots "Access denied" 403
 }
 ```
 
-Puis on l’importe dans chaque domaine concerné :
+Importez ensuite cette protection dans chaque bloc domaine concerné :
 
 ```txt
 example.com {
@@ -43,32 +45,30 @@ example.com {
 }
 ```
 
-## Fonctionnement
+### Explications
 
-- La requête est interceptée **immédiatement** par Caddy.
-- Elle ne touche pas l’application (ni PHP, ni backend).
-- Elle peut être logguée si `log` est défini dans le bloc domaine.
-- Elle est refusée avec un code **403**.
-
-> Cette règle seule permet déjà de bloquer efficacement les scans WordPress sur les serveurs non WordPress.
+- **Intercepté immédiatement** : Les requêtes sur des chemins sensibles sont bloquées dès Caddy, sans jamais atteindre PHP ou le backend applicatif.
+- **Flexibilité** : Le filtre couvre aussi bien WordPress que des chemins/fichiers utilisés par d'autres stacks (Node, Python, configs, dumps, etc.).
+- **Log possible** : Si la directive `log` est présente dans le bloc domaine, la requête est logguée pour analyse ultérieure.
+- **Réponse 403** : Un code 403 est retourné, sans révéler d’information technique.
 
 ---
 
-# 2. Bannissement permanent avec Fail2Ban
+## 2. Bannissement automatique avec Fail2Ban
 
-## Objectif complémentaire
+### Objectif complémentaire
 
-En complément, on utilise **Fail2Ban** pour analyser les logs et **bannir au niveau réseau** (via `iptables`) les IPs qui font trop de requêtes ciblées.
+Renforcer la sécurité avec **Fail2Ban**, qui lit les logs de Caddy pour **détecter et bannir** au niveau réseau toute IP multipliant les requêtes sur les chemins ou fichiers interdits.
 
-## Étapes de configuration
+### Étapes de configuration
 
-### 1. Créer le filtre Fail2ban
+#### 1. Créez le filtre Fail2Ban
 
 ```bash
-sudo nano /etc/fail2ban/filter.d/caddy-wp-bots.conf
+sudo nano /etc/fail2ban/filter.d/caddy-sensitive-bots.conf
 ```
 
-Contenu du fichier :
+Contenu du fichier :
 
 ```ini
 [Definition]
@@ -76,48 +76,46 @@ failregex = ^<HOST> .*"(GET|POST) /((wp-(admin|includes|content|.*\.php)|xmlrpc\
 ignoreregex =
 ```
 
-### 2. Ajouter une jail dans Fail2ban
+#### 2. Ajoutez une jail Fail2Ban
 
 ```bash
 sudo nano /etc/fail2ban/jail.local
 ```
 
-Extrait de configuration :
+Ajoutez :
 
 ```ini
-[caddy-wp-bots]
+[caddy-sensitive-bots]
 enabled = true
-filter = caddy-wp-bots
+filter = caddy-sensitive-bots
 logpath = /var/log/caddy/requests.json
 backend = auto
 maxretry = 5
 findtime = 60
 bantime = -1
-action = iptables[name=wp-bots, port=http, protocol=tcp]
+action = iptables[name=sensitive-bots, port=http, protocol=tcp]
 ```
 
-### 3. Redémarrer Fail2ban
+#### 3. Redémarrez Fail2Ban
 
 ```bash
 sudo systemctl restart fail2ban
 ```
 
-### 4. Vérifier que la jail est active
+#### 4. Vérifiez la jail
 
 ```bash
 sudo fail2ban-client status
 ```
 
-Doit afficher :
-```
-Jail list:   sshd, caddy-wp-bots
-```
+Vous devriez voir dans la liste des jails :  
+`sshd, caddy-sensitive-bots`
 
 ---
 
-# Limites et complémentarité
+## 3. Logging Caddy (prérequis Fail2Ban)
 
-Fail2Ban repose sur les logs écrits par Caddy dans `/var/log/caddy/requests.json`. Cette directive de logging doit être définie dans chaque bloc de domaine concerné, comme ici :
+Fail2Ban s’appuie sur les logs générés par Caddy. Ajoutez ce bloc `log` dans chaque domaine à protéger :
 
 ```text
 example.com {
@@ -135,27 +133,35 @@ example.com {
 }
 ```
 
-### Pourquoi combiner les deux ?
+---
 
-| Étape | Événement                         | Qui agit ?  | Résultat                                       |
-|-------|-----------------------------------|-------------|------------------------------------------------|
-| 1     | Bot attaque `/wp-login.php`       | Caddy       | Retourne 403 immédiatement, et logue la requête |
-| 2     | Ligne de log écrite               | Caddy       | Fichier `/var/log/caddy/requests.json`         |
-| 3     | IP détectée 5 fois                | Fail2Ban    | Déclenche un bannissement `iptables` permanent |
-| 4     | Nouvelle tentative de la même IP  | iptables    | Connexion bloquée avant même d’atteindre Caddy |
+## 4. Schéma de fonctionnement
+
+| Étape | Événement                                 | Qui agit ? | Résultat                                    |
+|-------|-------------------------------------------|------------|---------------------------------------------|
+| 1     | Bot cible un chemin ou fichier sensible   | Caddy      | Retour 403 immédiat, requête logguée        |
+| 2     | Ligne log écrite                          | Caddy      | Dans `/var/log/caddy/requests.json`         |
+| 3     | 5 accès détectés sur ces chemins          | Fail2Ban   | Bannissement permanent via iptables         |
+| 4     | Nouvelle tentative de cette IP            | iptables   | Connexion bloquée avant même d’atteindre Caddy |
 
 ---
 
-## Pour lister les IPs bannies par cette jail:
+## 5. Lister les IPs bannies
+
+Pour voir les IPs bannies par cette jail :
 
 ```bash
-sudo fail2ban-client status caddy-wp-bots
+sudo fail2ban-client status caddy-sensitive-bots
 ```
+
+---
 
 ## Conclusion
 
-- **Caddy bloque instantanément** les requêtes WordPress et bots connues pour soulager l'application.
-- **Fail2Ban bannit les IPs persistantes** au niveau réseau si les attaques continuent.
-- Cette approche hybride est simple, maintenable, et efficace sur les serveurs **sans WordPress**.
+- **Protection immédiate** : Caddy bloque instantanément toute tentative d’accès à des chemins ou fichiers sensibles, quel que soit le type de scan (WordPress, config, dump, etc.).
+- **Blocage réseau** : Fail2Ban bannit définitivement toute IP persistant dans ses tentatives.
+- **Approche maintenable et universelle** : Solution légère, sans dépendance à une techno spécifique (WordPress, Symfony, Node…), efficace contre tous les bots automatisés.
 
-Mis en place le : **2025-07-19**
+Mise en place le : **2025-07-19**
+
+---
