@@ -26,7 +26,7 @@ On crée d’abord une règle réutilisable dans le bloc global du `Caddyfile` :
 
 ```txt
 # caddyfile (bloc global, tout en haut)
-(wp-bot-protection) {
+(bot-protection) {
 	@_bots {
 		path_regexp wp_paths ^/(wp-admin|wp-content|wp-includes|wp-.*\.php|xmlrpc\.php|\.env(\..*)?$|phpinfo.*|\.git.*|\.aws.*|\.htaccess|\.DS_Store|\.vscode|\.idea|\.editorconfig|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|docker-compose\.ya?ml|application\.properties|settings\.py|config\.env|.*\.(bak|sql|ini|log|conf|yml|xml|old))$
 	}
@@ -38,7 +38,7 @@ Puis on l’importe dans chaque domaine concerné :
 
 ```txt
 example.com {
-    import wp-bot-protection
+    import bot-protection
     reverse_proxy localhost:3000
 }
 ```
