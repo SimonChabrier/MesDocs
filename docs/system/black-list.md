@@ -33,71 +33,50 @@ sudo nano /usr/local/bin/monitor_blacklist.sh
 
 ```bash
 #!/bin/bash
-LOG_FILE="/var/www/html/logs/requests.json"
+LOG_DIR="/var/log/caddy"
+LOG_FILES="$LOG_DIR/requests*.json"
 BLACKLIST_FILE="/etc/caddy/blacklist.txt"
 LOCAL_IP="192.168.0.254"
-THRESHOLD=5 # Nombre d'erreurs 404 ou 500 tolérée avant ajout d'une IP à la blacklist
+THRESHOLD=5
 DELAY=180
 
-# Fonction de nettoyage pour arrêter le script proprement
 cleanup() {
     echo "Arrêt du script monitor_blacklist.sh"
-    pkill -f "sleep"  # Tuer tous les processus sleep
+    pkill -f "sleep"
     exit 0
 }
-trap cleanup SIGINT SIGTERM  # Associer la fonction cleanup aux signaux SIGINT et SIGTERM
+trap cleanup SIGINT SIGTERM
 
-# Vérifier l'existence du fichier de logs
-if [ ! -f "$LOG_FILE" ]; then
-    echo "Fichier de logs introuvable : $LOG_FILE"
-    exit 1
-fi
-
-# Vérifier si iptables est installé
-if ! command -v iptables &> /dev/null; then
-    echo "Erreur : iptables n'est pas installé."
-    exit 1
-fi
-
-# Vérifier si jq est installé
-if ! command -v jq &> /dev/null; then
-    echo "Erreur : jq n'est pas installé."
-    exit 1
-fi
+if ! command -v iptables &> /dev/null; then echo "iptables non installé"; exit 1; fi
+if ! command -v jq &> /dev/null; then echo "jq non installé"; exit 1; fi
 
 echo "Démarrage de la surveillance des logs..."
 
-# Vérifier si la chaîne BLOCKED existe
-if ! sudo iptables -L BLOCKED > /dev/null 2>&1; then
-    sudo iptables -N BLOCKED  # Créer la chaîne BLOCKED si elle n'existe pas
-    echo "Chaîne BLOCKED créée."
+if ! sudo iptables -L BLOCKED &>/dev/null; then
+    sudo iptables -N BLOCKED && echo "Chaîne BLOCKED créée."
 fi
 
-# Boucle principale de surveillance
 while true; do
     echo "-------------------------------------"
     echo "Analyse des logs à $(date)"
 
-    if [ ! -r "$LOG_FILE" ]; then
-        echo "Erreur : Impossible de lire $LOG_FILE"
-        sleep "$DELAY"
-        continue
-    fi
+    TMP_FILE=$(mktemp)
 
-    if ! jq empty "$LOG_FILE" 2>/dev/null; then
-        echo "Erreur : Le fichier $LOG_FILE contient un JSON invalide."
-        sleep "$DELAY"
-        continue
-    fi
+    for file in $LOG_FILES; do
+        if jq empty "$file" 2>/dev/null; then
+            jq -r 'select(.status == 404 or .status == 500) | .request.client_ip' "$file" >> "$TMP_FILE"
+        else
+            echo "Fichier JSON invalide ignoré : $file"
+        fi
+    done
 
-    jq -r 'select(.status == 404 or .status == 500) | .request.client_ip' "$LOG_FILE" | \
-        sort | uniq -c | awk -v threshold=$THRESHOLD '$1 >= threshold {print $2}' > "$BLACKLIST_FILE"
+    sort "$TMP_FILE" | uniq -c | awk -v threshold=$THRESHOLD '$1 >= threshold {print $2}' > "$BLACKLIST_FILE"
+    rm "$TMP_FILE"
 
     if [ -s "$BLACKLIST_FILE" ]; then
-        echo "Blacklisting des IPs suspectes :"
+        echo "IPs à bloquer :"
         cat "$BLACKLIST_FILE"
 
-        # Supprimer les anciennes règles de la chaîne BLOCKED
         sudo iptables -F BLOCKED
 
         while read -r ip; do
@@ -111,12 +90,11 @@ while true; do
         sudo iptables -D INPUT -j BLOCKED 2>/dev/null
         sudo iptables -A INPUT -j BLOCKED
     else
-        echo "Aucune nouvelle IP à blacklister."
+        echo "Aucune IP à blacklister."
     fi
 
     sleep "$DELAY"
 done
-
 ````
 
 ## Rendre le script exécutable
