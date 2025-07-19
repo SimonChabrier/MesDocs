@@ -121,7 +121,7 @@ Fail2Ban repose sur les logs écrits par Caddy dans `/var/log/caddy/requests.jso
 
 ```text
 example.com {
-    import wp-bot-protection
+    import bot-protection
 
     log {
         output file /var/log/caddy/requests.json {
@@ -154,7 +154,7 @@ sudo fail2ban-client status caddy-wp-bots
 
 ## Conclusion
 
-- **Caddy bloque instantanément** les requêtes WordPress connues pour soulager l'application.
+- **Caddy bloque instantanément** les requêtes WordPress et bots connues pour soulager l'application.
 - **Fail2Ban bannit les IPs persistantes** au niveau réseau si les attaques continuent.
 - Cette approche hybride est simple, maintenable, et efficace sur les serveurs **sans WordPress**.
 
