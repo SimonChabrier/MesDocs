@@ -71,7 +71,7 @@ export default defineConfig({
           text: "🛡️ Sécurité & Pare-feu",
           items: [
             { text: "Fail2Ban", link: "/docs/system/fail2ban" },
-            { text: "Fail2Ban Caddy WordPress protection", link: "/docs/system/fail2ban-caddy-wp-protection" },
+            { text: "WordPress bot protection", link: "/docs/system/fail2ban-caddy-wp-protection" },
             { text: "Sécurité Ip BlackList", link: "/docs/system/black-list" }
           ]
         },
