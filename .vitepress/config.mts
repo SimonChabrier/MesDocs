@@ -58,34 +58,64 @@ export default defineConfig({
     sidebar: {
       "/docs/system/": [
         {
-          text: "Base de connaissances système",
+          text: "🔧 Configuration système",
           items: [
             { text: "Terminal Config", link: "/docs/system/terminal-config" },
             { text: "Rsync sauvegarde", link: "/docs/system/rsync-backup" },
             { text: "Gestion des droits", link: "/docs/system/droits-ecriture" },
+            { text: "Transfert de fichiers", link: "/docs/system/tranfert-fichiers" },
+            { text: "Code Serveur", link: "/docs/system/code-serveur" }
+          ]
+        },
+        {
+          text: "🛡️ Sécurité & Pare-feu",
+          items: [
             { text: "Fail2Ban", link: "/docs/system/fail2ban" },
             { text: "Fail2Ban Caddy WordPress protection", link: "/docs/system/fail2ban-caddy-wp-protection" },
-            { text: "Transfert de fichiers", link: "/docs/system/tranfert-fichiers" },
-            { text: "Code Serveur", link: "/docs/system/code-serveur" },
+            { text: "Sécurité Ip BlackList", link: "/docs/system/black-list" }
+          ]
+        },
+        {
+          text: "🌐 CaddyServer",
+          items: [
             { text: "Installer CaddyServer", link: "/docs/system/caddy-install" },
-            { text: "Cockpit", link: "/docs/system/cockpit" },
             { text: "Configurer CaddyServer", link: "/docs/system/caddy-caddyfile" },
             { text: "CaddyServer Local https", link: "/docs/system/caddy-local-https.md" },
             { text: "Maintenance CaddyServer", link: "/docs/system/caddy-commandes" },
             { text: "BasicAuth CaddyServer", link: "/docs/system/caddy-basicauth" },
+            { text: "Caddy => Apache", link: "/docs/system/caddy-apache" }
+          ]
+        },
+        {
+          text: "🖥️ Admin & Interface",
+          items: [
+            { text: "Cockpit", link: "/docs/system/cockpit" },
+            { text: "Mailhog Install", link: "/docs/system/mailhog.md" },
             { text: "Installer PhpMyAdmin pour PHP 8.*", link: "/docs/system/phpmyadmin-install" },
-            { text: "Config User BDD", link: "/docs/system/bdd-create-user" },
-            { text: "Caddy => Apache", link: "/docs/system/caddy-apache" },
-            { text: "Installer Mercure", link: "/docs/system/mercure-install" },
-            { text: "Mercure Jwt", link: "/docs/system/mercure-jwt-generator" },
+            { text: "Config User BDD", link: "/docs/system/bdd-create-user" }
+          ]
+        },
+        {
+          text: "🔐 Accès SSH & Déploiement",
+          items: [
             { text: "Ssh OSX <=> Machine", link: "/docs/system/osx-ssh.md" },
             { text: "Ssh Serveur <=> Hôte Config", link: "/docs/system/ssh" },
-            { text: "Ssh Machine <=> GitHub", link: "/docs/system/ssh-github" },
-            { text: "Sécurité Ip BlackList", link: "/docs/system/black-list" },
+            { text: "Ssh Machine <=> GitHub", link: "/docs/system/ssh-github" }
+          ]
+        },
+        {
+          text: "📊 Matomo",
+          items: [
             { text: "Installer Matomo", link: "/docs/system/matomo" },
             { text: "Matomo Astro", link: "/docs/system/matomo-astro" },
-            { text: "Matomo VitePress", link: "/docs/system/matomo-vitepress" },
-            { text: "Mailhog Install", link: "/docs/system/mailhog.md" }
+            { text: "Matomo VitePress", link: "/docs/system/matomo-vitepress" }
+          ]
+        },
+        {
+          text: "📡 Mercure",
+          items: [
+            { text: "Installer Mercure", link: "/docs/system/mercure-install" },
+            { text: "Mercure Jwt", link: "/docs/system/mercure-jwt-generator" }
           ]
         }
       ],
