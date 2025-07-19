@@ -72,7 +72,7 @@ Contenu du fichier :
 
 ```ini
 [Definition]
-failregex = ^<HOST> .*"(GET|POST) /(wp-(admin|includes|content|.*\.php)|xmlrpc\.php)
+failregex = ^<HOST> .*"(GET|POST) /((wp-(admin|includes|content|.*\.php)|xmlrpc\.php|\.env(\..*)?$|phpinfo.*|\.git.*|\.aws.*|\.htaccess|\.DS_Store|\.vscode|\.idea|\.editorconfig|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|docker-compose\.ya?ml|application\.properties|settings\.py|config\.env|.*\.(bak|sql|ini|log|conf|yml|xml|old))) HTTP
 ignoreregex =
 ```
 
