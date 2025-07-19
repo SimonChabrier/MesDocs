@@ -91,8 +91,8 @@ export default defineConfig({
           text: "🖥️ Admin & Interface",
           items: [
             { text: "Cockpit", link: "/docs/system/cockpit" },
-            { text: "Cockpit remove PCP tools", link: "/docs/system/cockpit" },
-            { text: "Mailhog Install", link: "/docs/system/cockpit-clean-pcp" },
+            { text: "Cockpit remove PCP", link: "/docs/system/cockpit-clean-pcp" },
+            { text: "Mailhog Install", link: "/docs/system/mailhog" },
             { text: "Installer PhpMyAdmin pour PHP 8.*", link: "/docs/system/phpmyadmin-install" },
             { text: "Config User BDD", link: "/docs/system/bdd-create-user" }
           ]
