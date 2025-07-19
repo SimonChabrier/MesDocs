@@ -36,7 +36,7 @@ sudo nano /usr/local/bin/monitor_blacklist.sh
 LOG_FILE="/var/www/html/logs/requests.json"
 BLACKLIST_FILE="/etc/caddy/blacklist.txt"
 LOCAL_IP="192.168.0.254"
-THRESHOLD=10
+THRESHOLD=5 # Nombre d'erreurs 404 ou 500 tolérée avant ajout d'une IP à la blacklist
 DELAY=180
 
 # Fonction de nettoyage pour arrêter le script proprement
