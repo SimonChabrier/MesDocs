@@ -85,6 +85,8 @@ while true; do
     TMP_FILE=$(mktemp)
     > "$BLACKLIST_FILE"
 
+    found_ip=0
+
     for file in $LOG_FILES; do
         if [ -r "$file" ] && jq empty "$file" 2>/dev/null; then
             jq -r '. | [.ts, .request.client_ip] | @tsv' "$file" >> "$TMP_FILE"
@@ -101,8 +103,9 @@ while true; do
             }
         }
     }' "$TMP_FILE" | grep -v "^$LOCAL_IP$" | sort -u | while read -r ip; do
-        if ! sudo iptables -C BLOCKED -s "$ip" -j REJECT 2>/dev/null; then
+        if [ -n "$ip" ] && ! sudo iptables -C BLOCKED -s "$ip" -j REJECT 2>/dev/null; then
             echo "$ip" >> "$BLACKLIST_FILE"
+            found_ip=1
         fi
     done
 
@@ -113,18 +116,26 @@ while true; do
         cat "$BLACKLIST_FILE"
 
         while read -r ip; do
-            sudo iptables -A BLOCKED -s "$ip" -j REJECT
+            if [ -n "$ip" ]; then
+                sudo iptables -A BLOCKED -s "$ip" -j REJECT
+                echo "→ IP bannie : $ip"
+            fi
         done < "$BLACKLIST_FILE"
 
         if ! sudo iptables -L INPUT -n | grep -q 'BLOCKED'; then
             sudo iptables -A INPUT -j BLOCKED
+            echo "Chaîne BLOCKED ajoutée à INPUT."
         fi
+
+        > "$BLACKLIST_FILE"
+        echo "Fichier blacklist.txt réinitialisé."
     else
         echo "Aucune IP à blacklister."
     fi
 
     sleep "$DELAY"
 done
+
 ```
 
 ## Rendre le script exécutable
