@@ -47,6 +47,7 @@ sudo nano /usr/local/bin/monitor_blacklist.sh
 
 ```bash
 #!/bin/bash
+
 LOG_DIR="/var/log/caddy"
 LOG_FILES="$LOG_DIR/requests*.json"
 BLACKLIST_FILE="/etc/caddy/blacklist.txt"
@@ -54,6 +55,7 @@ LOCAL_IP="192.168.0.254"
 THRESHOLD=5
 DELAY=180
 
+# Nettoyage propre
 cleanup() {
     echo "Arrêt du script monitor_blacklist.sh"
     pkill -f "sleep"
@@ -61,15 +63,25 @@ cleanup() {
 }
 trap cleanup SIGINT SIGTERM
 
-if ! command -v iptables &> /dev/null; then echo "iptables non installé"; exit 1; fi
-if ! command -v jq &> /dev/null; then echo "jq non installé"; exit 1; fi
+# Vérification des outils nécessaires
+if ! command -v iptables &>/dev/null; then
+    echo "Erreur : iptables non installé"
+    exit 1
+fi
+
+if ! command -v jq &>/dev/null; then
+    echo "Erreur : jq non installé"
+    exit 1
+fi
 
 echo "Démarrage de la surveillance des logs..."
 
+# Créer la chaîne BLOCKED si elle n’existe pas
 if ! sudo iptables -L BLOCKED &>/dev/null; then
     sudo iptables -N BLOCKED && echo "Chaîne BLOCKED créée."
 fi
 
+# Boucle infinie
 while true; do
     echo "-------------------------------------"
     echo "Analyse des logs à $(date)"
@@ -77,14 +89,15 @@ while true; do
     TMP_FILE=$(mktemp)
 
     for file in $LOG_FILES; do
-        if jq empty "$file" 2>/dev/null; then
+        if [ -r "$file" ] && jq empty "$file" 2>/dev/null; then
             jq -r 'select(.status == 404 or .status == 500) | .request.client_ip' "$file" >> "$TMP_FILE"
         else
-            echo "Fichier JSON invalide ignoré : $file"
+            echo "Fichier ignoré (illisible ou invalide JSON) : $file"
         fi
     done
 
-    sort "$TMP_FILE" | uniq -c | awk -v threshold=$THRESHOLD '$1 >= threshold {print $2}' > "$BLACKLIST_FILE"
+    # Compter, filtrer par seuil, exclure l’IP locale
+    sort "$TMP_FILE" | uniq -c | awk -v threshold="$THRESHOLD" '$1 >= threshold {print $2}' | grep -v "^$LOCAL_IP$" > "$BLACKLIST_FILE"
     rm "$TMP_FILE"
 
     if [ -s "$BLACKLIST_FILE" ]; then
@@ -94,10 +107,8 @@ while true; do
         sudo iptables -F BLOCKED
 
         while read -r ip; do
-            if [[ "$ip" != "$LOCAL_IP" ]]; then
-                if ! sudo iptables -L BLOCKED -v -n | grep -q "$ip"; then
-                    sudo iptables -A BLOCKED -s "$ip" -j REJECT
-                fi
+            if ! sudo iptables -L BLOCKED -v -n | grep -q "$ip"; then
+                sudo iptables -A BLOCKED -s "$ip" -j REJECT
             fi
         done < "$BLACKLIST_FILE"
 
@@ -227,20 +238,18 @@ Ajouter le contenu suivant :
 
 ```shell
 [Unit]
-Description=Service de surveillance de la blacklist des IP
+Description=Surveillance automatique des logs HTTP et blacklisting IP
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c '/usr/local/bin/monitor_blacklist.sh >> /var/log/monitor_blacklist.log 2>&1'
+ExecStart=/usr/local/bin/monitor_blacklist.sh
 Restart=always
-RestartSec=180
+RestartSec=10
 User=root
 WorkingDirectory=/var/www/html
-StartLimitIntervalSec=on-failure
-LimitNOFILE=65536
-KillMode=process
-SuccessExitStatus=143
+StandardOutput=append:/var/log/monitor_blacklist.log
+StandardError=append:/var/log/monitor_blacklist.log
 
 [Install]
 WantedBy=multi-user.target
