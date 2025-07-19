@@ -11,39 +11,42 @@ language: fr
 status: validé
 ---
 
+# Créer une blacklist IP en fonction des logs serveurs récupérés dans un fichier
 
-# Créer une blacklist IP en fonction des logs serveurs récupéres dans un fichier
-
-- Objectif rejeter les requêtes des clients qui génèrent des erreurs 404 et 500 trop fréquemment en les ajoutant à une blacklist. En général c'est que le client est en train de scanner le serveur pour trouver des failles de sécurité ou pour faire du scraping de données. C'est déjà un premier niveau de protection contre les attaques de type DDoS.
+Objectif : rejeter les requêtes des clients qui génèrent des erreurs 404 et 500 trop fréquemment en les ajoutant à une blacklist. En général, cela signifie que le client scanne le serveur à la recherche de failles de sécurité ou fait du scraping de données. C’est un premier niveau de protection contre les attaques type DDoS ou reconnaissance.
 
 ## Prérequis
 
-- installer les outils suivants:
+Installer les outils suivants :
 
-- `jq` qui sert à manipuler les fichiers JSON en ligne de commande. 
-
-On va pouvoir lire dans le fichier json de log serveur crée par Caddy et extraire les IPs des clients qui ont généré des erreurs 404. On va ensuite les ajouter à la blacklist.
-`/var/www/html/logs/requests.json` est le fichier de logs de Caddy qui contient les requêtes HTTP reçues par le serveur pour les domaines sur les quel j'ai configuré cette logique d'écriture de logs dasn le Caddyfile.
-
-```shell
-sudo apt update && sudo apt install -y jq
+```bash
+sudo apt update && sudo apt install -y jq iptables
 ```
 
-- vérifier l'installation de `jq`:
+Vérifier l’installation :
 
-```shell
+```bash
 jq --version
+iptables --version
 ```
 
-## Créer le script monitor_blacklist.sh
+## Fichier de logs attendu
 
-- On lance la commande suivante pour créer le fichier de script:
+Caddy doit être configuré pour écrire des logs JSON dans :
 
-```shell
+```
+/var/log/caddy/requests.json
+```
+
+Ce fichier doit contenir des champs `.ts` (timestamp) et `.request.client_ip`.
+
+## Créer le script `monitor_blacklist.sh`
+
+```bash
 sudo nano /usr/local/bin/monitor_blacklist.sh
 ```
 
-- On y place ce code qui pointe vers le fichier de logs sur le quel Caddy écrit les logs de chaque domaine avec les directives configurés et le fichier de blacklist:
+Contenu du script :
 
 ```bash
 #!/bin/bash
@@ -52,10 +55,9 @@ LOG_DIR="/var/log/caddy"
 LOG_FILES="$LOG_DIR/requests*.json"
 BLACKLIST_FILE="/etc/caddy/blacklist.txt"
 LOCAL_IP="192.168.0.254"
-THRESHOLD=5            # Nombre max de requêtes dans la même seconde
-DELAY=180              # Temps entre chaque scan
+THRESHOLD=5
+DELAY=180
 
-# Nettoyage propre
 cleanup() {
     echo "Arrêt du script monitor_blacklist.sh"
     pkill -f "sleep"
@@ -63,9 +65,8 @@ cleanup() {
 }
 trap cleanup SIGINT SIGTERM
 
-# Vérification des outils nécessaires
-for cmd in iptables jq date; do
-    if ! command -v "$cmd" &>/dev/null; then
+for cmd in iptables jq; do
+    if ! command -v $cmd &>/dev/null; then
         echo "Erreur : $cmd non installé"
         exit 1
     fi
@@ -73,7 +74,6 @@ done
 
 echo "Démarrage de la surveillance des logs..."
 
-# Créer la chaîne BLOCKED si elle n’existe pas
 if ! sudo iptables -L BLOCKED &>/dev/null; then
     sudo iptables -N BLOCKED && echo "Chaîne BLOCKED créée."
 fi
@@ -86,175 +86,90 @@ while true; do
 
     for file in $LOG_FILES; do
         if [ -r "$file" ] && jq empty "$file" 2>/dev/null; then
-            jq -r 'select(.status == 404 or .status == 500) | [.request.client_ip, .ts] | @tsv' "$file" >> "$TMP_FILE"
+            jq -r '. | [.ts, .request.client_ip] | @tsv' "$file" >> "$TMP_FILE"
         else
             echo "Fichier ignoré (illisible ou invalide JSON) : $file"
         fi
     done
 
-    # Préparation d'une nouvelle liste temporaire
-    TMP_BLACKLIST=$(mktemp)
-
-    # Analyse : IPs qui font ≥ $THRESHOLD requêtes dans la même seconde
-    awk -v threshold="$THRESHOLD" -v local_ip="$LOCAL_IP" '
-    function to_second(ts) {
-        split(ts, a, "T")
-        split(a[2], b, ":")
-        split(b[3], c, ".")
-        return a[1] "T" b[1] ":" b[2] ":" c[1]  # timestamp tronqué à la seconde
-    }
-    {
-        ip = $1
-        ts = to_second($2)
-        key = ip "|" ts
-        count[key]++
-        if (count[key] == threshold && ip != local_ip) {
-            print ip
+    awk -F'\t' '{ ipcount[int($1)" "$2]++ } END {
+        for (key in ipcount) {
+            split(key, parts, " ")
+            if (ipcount[key] >= '"$THRESHOLD"') {
+                print parts[2]
+            }
         }
-    }' "$TMP_FILE" | sort -u > "$TMP_BLACKLIST"
-
+    }' "$TMP_FILE" | grep -v "^$LOCAL_IP$" | sort -u > "$BLACKLIST_FILE"
     rm "$TMP_FILE"
 
-    # Application du bannissement
-    if [ -s "$TMP_BLACKLIST" ]; then
+    if [ -s "$BLACKLIST_FILE" ]; then
         echo "IPs à bloquer :"
-        cat "$TMP_BLACKLIST" | tee "$BLACKLIST_FILE"
+        cat "$BLACKLIST_FILE"
 
         sudo iptables -F BLOCKED
 
         while read -r ip; do
-            if ! sudo iptables -L BLOCKED -v -n | grep -q "$ip"; then
-                sudo iptables -A BLOCKED -s "$ip" -j REJECT
-            fi
+            sudo iptables -A BLOCKED -s "$ip" -j REJECT
         done < "$BLACKLIST_FILE"
 
-        sudo iptables -D INPUT -j BLOCKED 2>/dev/null
-        sudo iptables -A INPUT -j BLOCKED
+        if ! sudo iptables -L INPUT -n | grep -q 'BLOCKED'; then
+            sudo iptables -A INPUT -j BLOCKED
+        fi
     else
         echo "Aucune IP à blacklister."
-        > "$BLACKLIST_FILE"
     fi
 
-    rm "$TMP_BLACKLIST"
     sleep "$DELAY"
 done
-````
+```
 
 ## Rendre le script exécutable
 
-```shell
+```bash
 sudo chmod +x /usr/local/bin/monitor_blacklist.sh
 ```
 
-## Exécuter le script en arrière plan
+## Lancer le script manuellement (test)
 
-```shell
+```bash
 sudo nohup /usr/local/bin/monitor_blacklist.sh &
 ```
 
-## Vérifier que le script tourne en arrière plan
+## Vérification
 
-```shell
+Vérifier que le script tourne :
+
+```bash
 ps aux | grep monitor_blacklist.sh
 ```
 
-## Vérifier les Ip bloquées dans IpTables (il y a une chaîne BLOCKED qui a été créée)
+Lister les IP bloquées :
 
-```shell
-sudo iptables -L BLOCKED
+```bash
+sudo iptables -L BLOCKED -v -n
 ```
 
-## Vérifier les Ip ajoutés dans le fichier dans la blacklist
+Vérifier si une IP spécifique est bloquée :
 
-```shell
-cat /etc/caddy/blacklist.txt
+```bash
+sudo iptables -L BLOCKED -v -n | grep 185.177.72.104
 ```
 
-## Vérifier si la règle est bien appliquée à toutes les connexions entrantes
-- C'est ca qui va bloquer les requêtes des IPs ajoutées à la blacklist c'est crucial de vérifier que cette règle est bien appliquée. et que les requêtes des IPs ajoutées à la blacklist sont bien bloquées.
+Lister les appels de la règle `BLOCKED` dans INPUT :
 
-```shell
+```bash
 sudo iptables -L INPUT -v -n
 ```
 
-- Vérifier la règle de blocage pour une ip ajoutée à la blacklist:
+## Créer un service systemd
 
-```shell
-sudo iptables -L INPUT -v -n | grep 44.243.167.6
-```
-
-- sortie de la commande:
-
-```shell
-Chain INPUT (policy DROP 3413 packets, 179K bytes)
- pkts bytes target     prot opt in     out     source               destination         
- 355M   87G ufw-before-logging-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
- 355M   87G ufw-before-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-9390K 2024M ufw-after-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
- 3493  185K ufw-after-logging-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
- 3493  185K ufw-reject-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
- 3493  185K ufw-track-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    1    44 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    1    44 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    1    44 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    1    44 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    1    44 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    1    44 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0           
-    0     0 BLOCKED    all  --  *      *       0.0.0.0/0            0.0.0.0/0   
-```
-
-on voit bien que la règle `BLOCKED` est bien appliquée à toutes les connexions entrantes et que les requêtes des IPs ajoutées à la blacklist sont bien bloquées.
-
-
-## Explication du script `monitor_blacklist.sh`
-
-La commande commence par la définition de plusieurs variables essentielles :
-
-- **`LOG_FILE`** : C'est le fichier de logs de Caddy qui enregistre toutes les requêtes HTTP reçues par le serveur. Il contient des informations sur les adresses IP, les méthodes de requêtes et les statuts de réponse.
-  
-- **`BLACKLIST_FILE`** : Ce fichier contient la liste des IPs déjà bloquées. Il est utilisé pour empêcher l'accès à des adresses IP malveillantes ou suspectes.
-
-- **`TEMP_BLACKLIST`** : Un fichier temporaire qui sert à stocker les nouvelles IPs détectées comme problématiques et à ajouter dans la liste noire.
-
-- **`LOCAL_IP`** : Il s'agit de l'IP locale (généralement celle du serveur), qui ne sera jamais ajoutée à la liste noire afin de préserver l'accès pour le débogage.
-
-## Processus :
-
-1. **Extraction des IPs problématiques** : 
-   La commande analyse les logs de Caddy (`LOG_FILE`) pour identifier les IPs ayant généré des erreurs 404 ou 500, et ce, dans un laps de temps défini.
-
-2. **Mise à jour de la blacklist** :
-   Les IPs détectées comme problématiques sont ajoutées au fichier `BLACKLIST_FILE`, mais uniquement si elles ne sont pas déjà présentes et si ce n'est pas l'IP locale.
-
-3. **Application des règles iptables** :
-   Les nouvelles IPs sont ensuite ajoutées à une chaîne `BLOCKED` dans `iptables`, assurant leur blocage au niveau réseau. Avant cela, le script vérifie que l'IP n'est pas déjà bloquée.
-
-4. **Protection de l'IP locale** :
-   L'IP du serveur (définie par `LOCAL_IP`) est exclue de toute modification pour garantir que le débogage reste possible.
-
-Ce processus permet de protéger le serveur en bloquant les adresses IP qui génèrent un nombre excessif d'erreurs, tout en maintenant l'accès pour le développement.
-
-## Création d'un service systemd pour exécuter le script automatiquement
-
-### Créer un fichier de service pour systemd :
-
-```shell
+```bash
 sudo nano /etc/systemd/system/monitor_blacklist.service
 ```
 
-Ajouter le contenu suivant :
+Contenu :
 
-```shell
+```ini
 [Unit]
 Description=Surveillance automatique des logs HTTP et blacklisting IP
 After=network.target
@@ -273,63 +188,35 @@ StandardError=append:/var/log/monitor_blacklist.log
 WantedBy=multi-user.target
 ```
 
-Activer le service :
+Activer et démarrer le service :
 
-```shell
+```bash
+sudo systemctl daemon-reload
 sudo systemctl enable monitor_blacklist.service
-```
-Démarrer le service :
-
-```shell
 sudo systemctl start monitor_blacklist.service
 ```
-Vérifier le statut du service :
 
-```shell
+Vérifier son statut :
+
+```bash
 sudo systemctl status monitor_blacklist.service
 ```
 
-Vérifier les logs sytemd pour voir si il y éventuellement des erreurs
-voir le journal du service
+Vérifier les logs :
 
-```shell
-sudo journalctl -u monitor_blacklist.service -f
-```
-
-Suivre l'activité en temps réel
-
-```shell
+```bash
 sudo tail -f /var/log/monitor_blacklist.log
 ```
 
-Si on modifie le script il faut recharger le service pour prendre en compte les modifications
+## Supprimer proprement le service
 
-```shell
-sudo systemctl daemon-reload
-sudo systemctl restart monitor_blacklist.service
-sudo systemctl status monitor_blacklist.service
-```
-
-Arrêter le service
-
-```shell
-sudo systemctl stop monitor_blacklist.service
-```
-
-Confirmer que les règles iptables sont bien mises à jour
-
-```shell
-sudo iptables -L BLOCKED -v -n
-```
-
-Conclusion et comportement attendu
-Le script démarre, analyse les logs, met à jour la blacklist d'IPs, et applique les règles iptables pour bloquer les IPs suspectes. Il attend 10 secondes (sleep 10). Il se termine naturellement. Après 10 secondes, systemd relance le script (RestartSec=10).
-
-## Supprimer le service systemd
-
-```shell
+```bash
 sudo systemctl stop monitor_blacklist.service
 sudo systemctl disable monitor_blacklist.service
 sudo rm /etc/systemd/system/monitor_blacklist.service
 sudo systemctl daemon-reload
 ```
+
+---
+
+Ce script offre une solution autonome et robuste pour réagir automatiquement aux comportements suspects détectés dans les logs HTTP générés par Caddy.
