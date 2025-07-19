@@ -145,6 +145,12 @@ example.com {
 
 ---
 
+## Pour lister les IPs bannies par cette jail:
+
+```bash
+sudo fail2ban-client status caddy-wp-bots
+```
+
 ## Conclusion
 
 - **Caddy bloque instantanément** les requêtes WordPress connues pour soulager l'application.
