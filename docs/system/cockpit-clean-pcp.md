@@ -20,7 +20,7 @@ Ce document décrit les étapes suivies pour désactiver complètement les servi
 
 Performance Co-Pilot est un outil de monitoring avancé, rarement utile sur un serveur de production sans besoins spécifiques. Il expose plusieurs ports (notamment `4330` et `44321`), et déploie plusieurs services persistants.
 
-**Nous avons donc décidé de désactiver et de supprimer totalement ce composant.**
+**J'ai donc décidé de désactiver et de supprimer totalement ce composant.**
 
 ---
 
