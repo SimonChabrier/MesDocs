@@ -42,7 +42,7 @@ const simon = [
     title: 'Développeur fullstack',
     links: [
       { icon: 'github', link: 'https://github.com/SimonChabrier' },
-      { icon: { svg: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Profil</title><path d="M12 2a5 5 0 015 5 5 5 0 01-5 5 5 5 0 01-5-5 5 5 0 015-5zm0 12c-3.866 0-7 2.015-7 4.5V20h14v-1.5c0-2.485-3.134-4.5-7-4.5z"/></svg>' }, link: 'https://simonchabrier.github.io/' }
+      { icon: { svg: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Profil</title><path d="M12 2a5 5 0 015 5 5 5 0 01-5 5 5 5 0 01-5-5 5 5 0 015-5zm0 12c-3.866 0-7 2.015-7 4.5V20h14v-1.5c0-2.485-3.134-4.5-7-4.5z"/></svg>' }, link: 'https://simonchabrier.fr/' }
     ]
   },
 ]

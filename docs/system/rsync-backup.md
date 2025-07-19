@@ -9,6 +9,8 @@ Objectif : Mettre en place une solution de sauvegarde incrémentielle automatis�
 
 ## Configuration de rsync pour les Sauvegardes
 
+- Positionné sur le compte root.
+
 Installer rsync :
 
 ```shell
@@ -33,12 +35,6 @@ Monter le disque de sauvegarde :
 sudo mount -a
 ```
 
-Créer un répertoire pour les sauvegardes complètes :
-
-```shell
-sudo mkdir /mnt/backup/backupfull
-```
-
 ## Commande de sauvegarde complète initiale :
 
 Si je veux faire directement une sauvegarde complète pour tester la première fois :
@@ -48,8 +44,8 @@ Si je veux faire directement une sauvegarde complète pour tester la première f
   --recursive --one-file-system \
   --info=progress2 --partial \
   --exclude={"/proc/*","/sys/*","/dev/*","/run/*","/tmp/*","swap.img"} \
-  / /mnt/backup/backupfull/ \
-  --no-ignore-errors >> /var/log/backup.log 2>> /var/log/backup_errors.log
+  / /mnt/backup/backupfull \
+  --no-ignore-errors
 ```
 
 
@@ -79,19 +75,13 @@ Si je veux faire directement une sauvegarde complète pour tester la première f
 
 `/ : Spécifie la source (la racine du système)`  
 
-`/mnt/backup/backupfull/$(date +\%Y-\%m-\%d_%H-%M-%S) : Spécifie la destination, en créant un dossier de sauvegarde horodaté`  
+`/mnt/backup/backupfull : Spécifie la destination, en créant un dossier de sauvegarde horodaté`  
 
 `--no-ignore-errors : Continue la synchronisation même en cas d'erreur`  
 
-`>> /var/log/backup.log 2>&1 : Redirige la sortie standard et les erreurs vers le fichier de log`
 
 J'exclu swap.img de la sauvegarde car il est inutile de sauvegarder le swap c'est un fichier temporaire qui sera recréé au prochain démarrage du système et il peut peser plusieurs Go.
 
-- Voir les logs pour monitorer le travail de la commade de sauvegarde :
-
-```shell
-tail -f /var/log/backup.log
-```
 
 La sauvegarde se fait depuis la racine / vers le répertoire de sauvegarde /mnt/backup/backupfull/ avec une date et une heure dans le nom du répertoire donc je fait une sauvegarde totale...mais je pourrais aussi uniqument sauvegarder uniquement les app de mon serveur web par exemple...
 
@@ -106,18 +96,12 @@ Ouvrir la crontab pour éditer la tâche planifiée :
 crontab -e
 ```
 
-Ajouter cette entrée pour exécuter la commande de sauvegarde incrémentale chaque jour à 4h00 :
+Ajouter cette entrée pour exécuter la commande de sauvegarde incrémentale chaque jour à 4h00 sans les logs pour ne pas créer de fichier volumineux (on a déjà testé avec la commande de sauvegarde complète initiale) :
+
+- à 4h00 tous les jours :
 
 ```shell
-0 4 * * * /usr/bin/rsync -avvv -AAX --delete --inplace --no-whole-file --numeric-ids --recursive --one-file-system --info=progress2 --partial --exclude=/proc/* --exclude=/sys/* --exclude=/dev/* --exclude=/run/* --exclude=/tmp/* --exclude=swap.img / /mnt/backup/backupfull/ --no-ignore-errors >> /var/log/backup.log 2>> /var/log/backup_errors.log
-```
-
-## Gestion des Logs
-
-Les logs de la sauvegarde sont enregistrés dans /var/log/backup.log. Je peux suivre l'exécution des sauvegardes en temps réel avec la commande :
-
-```shell
-tail -f /var/log/backup.log
+0 4 * * * /usr/bin/rsync -avvv -AAX --delete --inplace --no-whole-file --numeric-ids --recursive --one-file-system --partial --exclude=/proc/* --exclude=/sys/* --exclude=/dev/* --exclude=/run/* --exclude=/tmp/* --exclude=swap.img / /mnt/backup/backupfull --no-ignore-errors
 ```
 
 ## Recommencer à 0 si besoin...
@@ -135,28 +119,29 @@ A ce moment là il faudra refaire la command de sauvegarde complète pour recomm
 -  Afficher les 20 dernières lignes contenant "rsync" dans les logs système
 
 ```shell
-grep rsync /var/log/syslog | tail -20 
-```
-- Vider le fichier de log de backup
-
-```shell
-> /var/log/backup.log
+grep rsync /var/log/syslog | tail -20
 ```
 
-- Afficher les détails (y compris la taille) du fichier de log de backup
+- Vérifier les fichiers de sauvegarde créés :
 
 ```shell
-ls -l /var/log/backup.log
+ls -l /mnt/backup/backupfull_*/
 ```
 
-- Afficher les 5 dernières sauvegardes (triées par date décroissante)
+- Vérifier l'espace disque utilisé par la sauvegarde :
 
 ```shell
-ls -lt /mnt/backup/backupfull/ | head -n 5
+df -h /mnt/backup/backupfull_*/
+```
+
+- Vérifier l'espace disque utilisé par le répertoire de sauvegarde :
+
+```shell
+du -sh /mnt/backup/backupfull_*/
 ```
 
 ## Conclusion
 
-Avec cette configuration, je dispose d'un système de sauvegarde incrémentielle automatisé et sécurisé pour mon système. Les sauvegardes sont planifiées et exécutées régulièrement, avec une gestion des logs pour suivre les opérations. Je stocke la sauvegarde sur un second disque monté en /mnt/backup...si le système crame j'aurais la possibilité de restaurer mon système en quelques minutes. Chaque jour la CRON job va lire le fichier de sauvegarde actuel, le comparer avec le dernier fichier de sauvegarde et ne copier que les fichiers qui ont été modifiés ou ajoutés depuis la dernière sauvegarde...le dossier prendra à nouveau la date et l'heure de la sauvegarde...et ainsi de suite...je peux aussi faire des sauvegardes incrémentielles sur plusieurs jours, semaines, mois...en fonction de mes besoins.
+Avec cette configuration, je dispose d'un système de sauvegarde incrémentielle automatisé et sécurisé pour mon système. Les sauvegardes sont planifiées et exécutées régulièrement. Je stocke la sauvegarde sur un second disque monté en /mnt/backup...si le système crame j'aurais la possibilité de restaurer mon système en quelques minutes. Chaque jour la CRON job va lire le fichier de sauvegarde actuel, le comparer avec le dernier fichier de sauvegarde et ne copier que les fichiers qui ont été modifiés ou ajoutés depuis la dernière sauvegarde...le dossier prendra à nouveau la date et l'heure de la sauvegarde...et ainsi de suite...je peux aussi faire des sauvegardes incrémentielles sur plusieurs jours, semaines, mois...en fonction de mes besoins.
 
 
