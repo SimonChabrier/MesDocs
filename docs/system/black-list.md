@@ -50,6 +50,7 @@ Contenu du script :
 
 ```bash
 #!/bin/bash
+#!/bin/bash
 
 LOG_DIR="/var/log/caddy"
 LOG_FILES="$LOG_DIR/requests*.json"
@@ -85,8 +86,7 @@ while true; do
     TMP_FILE=$(mktemp)
     > "$BLACKLIST_FILE"
 
-    found_ip=0
-
+    # Extraction des IP à bannir
     for file in $LOG_FILES; do
         if [ -r "$file" ] && jq empty "$file" 2>/dev/null; then
             jq -r '. | [.ts, .request.client_ip] | @tsv' "$file" >> "$TMP_FILE"
@@ -95,6 +95,7 @@ while true; do
         fi
     done
 
+    # Construction de la liste noire temporaire
     awk -F'\t' '{ ipcount[int($1)" "$2]++ } END {
         for (key in ipcount) {
             split(key, parts, " ")
@@ -102,12 +103,7 @@ while true; do
                 print parts[2]
             }
         }
-    }' "$TMP_FILE" | grep -v "^$LOCAL_IP$" | sort -u | while read -r ip; do
-        if [ -n "$ip" ] && ! sudo iptables -C BLOCKED -s "$ip" -j REJECT 2>/dev/null; then
-            echo "$ip" >> "$BLACKLIST_FILE"
-            found_ip=1
-        fi
-    done
+    }' "$TMP_FILE" | grep -v "^$LOCAL_IP$" | sort -u > "$BLACKLIST_FILE"
 
     rm "$TMP_FILE"
 
@@ -117,8 +113,12 @@ while true; do
 
         while read -r ip; do
             if [ -n "$ip" ]; then
-                sudo iptables -A BLOCKED -s "$ip" -j REJECT
-                echo "→ IP bannie : $ip"
+                if ! sudo iptables -C BLOCKED -s "$ip" -j REJECT 2>/dev/null; then
+                    sudo iptables -A BLOCKED -s "$ip" -j REJECT
+                    echo "→ IP bannie : $ip"
+                else
+                    echo "→ IP déjà bannie : $ip"
+                fi
             fi
         done < "$BLACKLIST_FILE"
 
@@ -135,7 +135,6 @@ while true; do
 
     sleep "$DELAY"
 done
-
 ```
 
 ## Rendre le script exécutable
