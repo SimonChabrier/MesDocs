@@ -8,7 +8,7 @@ description: Explication synthétique de l'utilité, du fonctionnement et de l'i
 
 ## 1. Bloc `(bot-protection)`
 
-```caddyfile
+```shell
 (bot-protection) {
 	@_bots {
 		path_regexp wp_paths ^/(wp-admin|wp-content|wp-includes|wp-.*\.php|xmlrpc\.php|\.env(\..*)?$|phpinfo.*|\.git.*|\.aws.*|\.htaccess|\.DS_Store|\.vscode|\.idea|\.editorconfig|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|docker-compose\.ya?ml|application\.properties|settings\.py|config\.env|.*\.(bak|sql|ini|log|conf|yml|xml|old))$
@@ -29,7 +29,7 @@ description: Explication synthétique de l'utilité, du fonctionnement et de l'i
 
 ## 2. Bloc `(log-filter)`
 
-```caddyfile
+```shell
 (log-filter) {
 	@localIPs remote_ip 192.168.0.254 127.0.0.1 ::1
 	log_skip @localIPs
@@ -73,6 +73,8 @@ mailhog.simschab.cloud {
 - **L’accès à l’interface Mailhog est protégé par mot de passe**.
 
 ---
+
+## Poursuivre vers le script qui traite le fichier de log : [Surveillance automatique des IPs malveillantes via les logs Caddy](https://doc.simschab.cloud/docs/system/black-list.html).
 
 ## Résumé
 
