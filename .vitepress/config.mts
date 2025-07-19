@@ -81,7 +81,7 @@ export default defineConfig({
           items: [
             { text: "Installer CaddyServer", link: "/docs/system/caddy-install" },
             { text: "Configurer CaddyServer", link: "/docs/system/caddy-caddyfile" },
-            { text: "CaddyServer Local https", link: "/docs/system/caddy-local-https.md" },
+            { text: "CaddyServer Local https", link: "/docs/system/caddy-local-https" },
             { text: "Maintenance CaddyServer", link: "/docs/system/caddy-commandes" },
             { text: "BasicAuth CaddyServer", link: "/docs/system/caddy-basicauth" },
             { text: "Caddy => Apache", link: "/docs/system/caddy-apache" }
@@ -91,7 +91,8 @@ export default defineConfig({
           text: "🖥️ Admin & Interface",
           items: [
             { text: "Cockpit", link: "/docs/system/cockpit" },
-            { text: "Mailhog Install", link: "/docs/system/mailhog.md" },
+            { text: "Cockpit remove PCP tools", link: "/docs/system/cockpit" },
+            { text: "Mailhog Install", link: "/docs/system/cockpit-clean-pcp" },
             { text: "Installer PhpMyAdmin pour PHP 8.*", link: "/docs/system/phpmyadmin-install" },
             { text: "Config User BDD", link: "/docs/system/bdd-create-user" }
           ]
