@@ -140,6 +140,25 @@ df -h /mnt/backup/backupfull_*/
 du -sh /mnt/backup/backupfull_*/
 ```
 
+- Comme on sauvegarde uniquement en local et pas en résau on peut fermer le port 873 de rsync pour éviter les attaques par force brute :
+
+```shell
+sudo ufw deny 873/tcp #(bloque TCP et UDP)
+```
+
+- On peut donc désactiver le service rsync si on ne l'utilise pas :
+
+```shell
+sudo systemctl stop rsync
+sudo systemctl disable rsync
+```
+
+- Pour vérifier que le service rsync est actif :
+
+```shell
+sudo systemctl status rsync
+```
+
 ## Conclusion
 
 Avec cette configuration, je dispose d'un système de sauvegarde incrémentielle automatisé et sécurisé pour mon système. Les sauvegardes sont planifiées et exécutées régulièrement. Je stocke la sauvegarde sur un second disque monté en /mnt/backup...si le système crame j'aurais la possibilité de restaurer mon système en quelques minutes. Chaque jour la CRON job va lire le fichier de sauvegarde actuel, le comparer avec le dernier fichier de sauvegarde et ne copier que les fichiers qui ont été modifiés ou ajoutés depuis la dernière sauvegarde...le dossier prendra à nouveau la date et l'heure de la sauvegarde...et ainsi de suite...je peux aussi faire des sauvegardes incrémentielles sur plusieurs jours, semaines, mois...en fonction de mes besoins.
