@@ -1,3 +1,7 @@
+---
+title: Serveur VsCode avec Remote-SSH
+description: Serveur VsCode pour utiliser l'extension Remote-SSH et accéder à un serveur distant depuis VsCode.
+---
 # Serveur VsCode pour utiliser l'extension Remote-SSH et accéder à un serveur distant depuis VsCode.
 
 - Ici le problème réglé est la connexion à mon home serveur depuis mon poste de travail en utilisant l'extension Remote-SSH de VsCode.
