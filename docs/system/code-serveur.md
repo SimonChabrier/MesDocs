@@ -36,7 +36,7 @@ cmd + maj + p
 ```shell
     Host vscode.simschab.cloud
     HostName vscode.simschab.cloud
-    User simon
+    User nom_utilisateur
     IdentityFile ~/.ssh/id_rsa
     Port 22
 ```
@@ -59,7 +59,7 @@ Host vscode.simschab.cloud
 sudo nano /etc/ssh/sshd_config
 ```
 
-- Modifier la ligne `PermitRootLogin no` en `PermitRootLogin yes` pour autoriser la connexion en tant que root.
+- Modifier la ligne `PermitRootLogin no` en `PermitRootLogin yes` pour autoriser la connexion en tant que root. (attention à la sécurité, il est préférable de ne pas autoriser la connexion en tant que root pour des raisons de sécurité).
 
 
 - On met donc le nom de domaine du serveur si il y en a un ou sinon l'IP du serveur à la place, le nom d'utilisateur qui va deamnder l'autorisaiton de se connecter au serveur, le chemin de la clé ssh privée et le port de connexion ssh par défaut (si on a changé le port ssh sur le serveur il faut le renseigner ici).
