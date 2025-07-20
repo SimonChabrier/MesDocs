@@ -207,6 +207,7 @@ Tout paramètre absent dans `jail.local` utilisera la valeur de `jail.conf`.
 
 
 ## Conclusion
+
 Fail2Ban est un outil puissant pour protéger votre serveur contre les attaques de force brute, notamment
 les tentatives de connexion SSH. En configurant correctement les jails et en surveillant les logs, vous pouvez réduire considérablement le risque d'intrusion.
 
