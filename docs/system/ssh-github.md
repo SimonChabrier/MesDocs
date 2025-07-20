@@ -1,3 +1,8 @@
+---
+title: Identifier sa machine pour GitHub
+description: Comment identifier sa machine pour GitHub en utilisant une clé SSH.
+---
+
 # Identifier sa machine pour GitHub
 
 - Pour identifier sa machine pour GitHub, il faut générer une clé SSH et l'ajouter à son compte GitHub.

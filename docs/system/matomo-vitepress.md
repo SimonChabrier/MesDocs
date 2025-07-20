@@ -1,3 +1,8 @@
+---
+title: Ajouter Matomo à Vitepress
+description: Intégrer Matomo pour le suivi des statistiques dans un projet Vitepress.
+---
+
 # Ajouter Matomo à Vitpress
 
 - A la main la configuration minimale est la suivante :

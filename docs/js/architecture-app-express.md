@@ -1,3 +1,8 @@
+---
+title: Comment je structure une application Express.js
+description: Guide pour structurer une application Express.js en suivant les bonnes pratiques de développement.
+---
+
 # Comment je structure une application Express.js
 
 ## Introduction

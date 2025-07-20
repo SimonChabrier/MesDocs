@@ -1,3 +1,8 @@
+---
+title: Transfert de fichiers entre serveurs et hôtes
+description: Comment transférer des fichiers entre un serveur et un hôte en utilisant SSH et SCP.
+---
+
 # Transfert de fichiers entre serveurs et hôtes
 
 - Ici le problème est de transférer des fichiers entre un serveur et un hôte. Je veux pouvoir en ssh copier un fichier d'un serveur vers un hôte ou d'un hôte vers un serveur.

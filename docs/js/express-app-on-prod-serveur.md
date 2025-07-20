@@ -1,3 +1,8 @@
+---
+title: Architecture d'une application Express.js
+description: Guide pour structurer une application Express.js en suivant les bonnes pratiques de développement.
+---
+
 # Installation et gestion de l'application avec PM2
 
 - Ici le problème est de lancer une application Node.js en production sur un serveur distant et de la gérer facilement. Dans mon cas je la lance sur mon home serveur pour pouvoir y accéder depuis n'importe où et pour pouvoir la tester dans un environnement de production.

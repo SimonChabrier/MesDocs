@@ -1,13 +1,6 @@
 ---
 title: Suppression de Performance Co-Pilot (PCP) sur Ubuntu Server
 description: Désactiver et supprimer les services PCP (pmcd, pmlogger) et sécuriser les ports associés (44321, 4330) sur un serveur Ubuntu.
-date: 2025-07-19
-tags:
-  - sécurité
-  - ubuntu-server
-  - monitoring
-  - pcp
-  - hardening
 ---
 
 # Désactivation et suppression de Performance Co-Pilot (PCP)

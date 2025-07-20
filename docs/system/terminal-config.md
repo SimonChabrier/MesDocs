@@ -1,3 +1,8 @@
+---
+title: Personnaliser le terminal avec des alias de commandes
+description: Ajouter des alias de commandes pour simplifier l'utilisation du terminal, comme pour git et symfony.
+---
+
 # Personnaliser le terminal avec des alias de commandes
 
 ## Ajouter des alias de commandes
