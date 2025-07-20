@@ -1,4 +1,3 @@
-
 ---
 title: Explications des blocs (bot-protection) et (log-filter) dans Caddyfile
 description: Explication synthétique de l'utilité, du fonctionnement et de l'intérêt des blocs Caddy (bot-protection) et (log-filter), avec exemple d'utilisation.
