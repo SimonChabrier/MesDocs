@@ -19,6 +19,11 @@ ou avec iptables
 sudo iptables -A INPUT -s [IP] -j DROP
 ```
 
+vérifier si l'ip est bloquée
+```bash
+sudo iptables -L INPUT -v -n | grep [IP]
+```
+
 
 ## Installer Fail2Ban
 ```bash
