@@ -1,6 +1,6 @@
 ---
 title: Sécuriser les tentatives de connexion SSH avec Fail2Ban
-description: Sécuriser le stentatives de connexion SSH avec Fail2Ban pour protéger votre serveur contre les attaques de force brute.
+description: Sécuriser les tentatives de connexion SSH avec Fail2Ban pour protéger votre serveur contre les attaques de force brute.
 ---
 
 # Sécuriser les tentatives de connexion SSH avec Fail2Ban
@@ -41,12 +41,18 @@ sudo nano /etc/ssh/sshd_config
 
 ```bash
 PermitRootLogin no -> PermitRootLogin yes
+PasswordAuthentication no -> PasswordAuthentication yes
 ```
 
 - Redémarrer le service SSH
 
 ```bash
 sudo systemctl restart ssh
+```
+
+## le plus sécurisé reste l'usage d'une clé SSH
+```bash
+PubkeyAuthentication yes
 ```
 
 ## Eventuellement changer le port SSH
@@ -85,6 +91,16 @@ sudo fail2ban-client set sshd unbanip [IP]
 ## Voir les logs de Fail2Ban
 ```bash
 sudo journalctl -u fail2ban
+```
+
+## Voir le nombre de tenatives de connexions ssh
+```bash
+grep "authentication failure" /var/log/auth.log | wc -l
+```
+
+## Voir le poids du fichier de log
+```bash
+ls -lh /var/log/auth.log
 ```
 
 ## Créer des jails personnalisés pour surcharger la configuration de Fail2Ban
@@ -163,6 +179,12 @@ Ajoute une règle à la fin de la chaîne INPUT pour bloquer toute connexion ent
 
 ## Rendre cette configuration permanente
 
+IL fau que le paquet `iptables-persistent` soit installé pour rendre les règles iptables persistantes après un redémarrage.
+
+```bash
+sudo apt install iptables-persistent
+```
+
 Par défaut, toute règle ajoutée avec iptables est volatile :
 Elle disparaît au reboot donc on doit la sauvegarder dans un fichier de règles.
 
@@ -170,22 +192,26 @@ Elle disparaît au reboot donc on doit la sauvegarder dans un fichier de règles
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 ```
 
+A refaire après chaque modification des règles iptables. 
+
 ## Comportement de jail.local vs jail.conf
-Ce que tu définis dans jail.local :
 
-Prend le dessus (override) sur la même section (jail) dans jail.conf,
+- Ce qui est défini dans `jail.local` prend le dessus sur la même section (jail) dans `jail.conf`.
+- Si une jail existe seulement dans `jail.local`, elle s’ajoute à la configuration globale.
+- Les options `[DEFAULT]` définies dans `jail.local` surchargent celles de `[DEFAULT]` dans `jail.conf`.
+- Les paramètres non spécifiés dans `jail.local` héritent de la configuration de `jail.conf`.
 
-S’ajoute si la jail n’existe pas dans jail.conf.
+Exemple :
+Si `[sshd]` est présent dans les deux fichiers, c’est la configuration de `/etc/fail2ban/jail.local` qui s’applique.  
+Tout paramètre absent dans `jail.local` utilisera la valeur de `jail.conf`.
 
-Ce que tu définis dans [DEFAULT] de jail.local surcharge également les options [DEFAULT] de jail.conf.
-
-Exemples :
-
-Si [sshd] existe dans les deux fichiers, c’est la version de ` /etc/fail2ban/jail.conf` qui s’applique (les paramètres non spécifiés en local héritent de conf).
 
 ## Conclusion
 Fail2Ban est un outil puissant pour protéger votre serveur contre les attaques de force brute, notamment
 les tentatives de connexion SSH. En configurant correctement les jails et en surveillant les logs, vous pouvez réduire considérablement le risque d'intrusion.
+
+Fail2Ban gère le ban en live,
+iptables-persistent gère la sauvegarde/restauration automatique au reboot.
 
 Le serveur est maintenant sécurisé contre les attaques de force brute sur le SSH.
 ---
