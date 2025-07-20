@@ -37,10 +37,10 @@ sudo systemctl status fail2ban
 sudo nano /etc/ssh/sshd_config
 ```
 
-- Modifier la ligne suivante
+- Modifier la ligne suivante (attention gros risque de sécurité de la connexion root en SSH) :
 
 ```bash
-PermitRootLogin no
+PermitRootLogin no -> PermitRootLogin yes
 ```
 
 - Redémarrer le service SSH
@@ -87,7 +87,7 @@ sudo fail2ban-client set sshd unbanip [IP]
 sudo journalctl -u fail2ban
 ```
 
-## Renforcer la configuration de Fail2Ban
+## Créer des jails personnalisés pour surcharger la configuration de Fail2Ban
 ```bash
 sudo nano /etc/fail2ban/jail.local
 ```
@@ -96,19 +96,17 @@ sudo nano /etc/fail2ban/jail.local
 
 ```bash
 [sshd]
-enabled = true
-bantime = 1d
-findtime = 10m
+enabled = true 
+bantime = -1 
+findtime = 10m 
 maxretry = 3
 ```
 
-```bash
-bantime = 1d ⟶ Banni pendant 1 jour (ou bantime = -1 pour bannir définitivement)
-findtime = 10m ⟶ Vérifie les tentatives sur 10 minutes
-maxretry = 3 ⟶ Bloque après 3 échecs
-```
+Cette configuration dit que 3 tentatives ratées en 10 minutes déclenchent un ban.
 
-Toutes les 10 secondes, Fail2Ban vérifie les logs SSH pour voir si une IP a dépassé le nombre de tentatives autorisées. Si c'est le cas, l'IP est bannie pour 1 jour ou définitivement si vous j'ai mis -1.
+Fail2Ban vérifie en continu (toutes les secondes par défaut de toutes les jails crées et activés) les logs SSH pour voir si une IP a dépassé le nombre de tentatives autorisées. Si c’est le cas, l’IP est bannie pour 1 jour ou définitivement si -1.
+
+La jail [sshd] est souvent déjà présente dans `/etc/fail2ban/jail.conf` (fichier global) mais il vaut mieux surcharger via jail.local pour préserver la conf par défaut et ajouter ses propres règles.
 
 - Redémarrer Fail2Ban
 
@@ -116,19 +114,6 @@ Toutes les 10 secondes, Fail2Ban vérifie les logs SSH pour voir si une IP a dé
 sudo systemctl restart fail2ban
 ```
 
-## Eviter de se bloquer soi même
-
-- Trouver son IP local 
-
-```bash
-ip a | grep "inet"
-```
-
-- Ajouter son IP dans le fichier de configuration de Fail2Ban
-
-```bash
-ignoreip = 192.168.0.....
-```
 
 ## Modifier la configuration de fail2ban
 ```bash
@@ -149,6 +134,21 @@ sudo systemctl restart fail2ban
 sudo fail2ban-client status sshd
 ```
 
+## Eviter de se bloquer soi même
+
+- Trouver son IP local 
+
+```bash
+ip a | grep "inet"
+```
+
+- Ajouter son IP dans le fichier de configuration de Fail2Ban (`/etc/fail2ban/jail.local`)
+
+```bash
+[DEFAULT]
+ignoreip = 192.168.0.254 # Ajouter la liste d'IP à ignorer, séparées par un espace
+```
+
 ## Bannir rapidement une IP avec fail2ban
 ```bash
 sudo fail2ban-client set sshd banip 92.255.85.107
@@ -159,9 +159,34 @@ sudo fail2ban-client set sshd banip 92.255.85.107
 sudo iptables -A INPUT -s 92.255.85.107 -j DROP
 ```
 
+Ajoute une règle à la fin de la chaîne INPUT pour bloquer toute connexion entrante provenant de l’IP 92.255.85.107.
+
 ## Rendre cette configuration permanente
+
+Par défaut, toute règle ajoutée avec iptables est volatile :
+Elle disparaît au reboot donc on doit la sauvegarder dans un fichier de règles.
+
 ```bash
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 ```
 
+## Comportement de jail.local vs jail.conf
+Ce que tu définis dans jail.local :
+
+Prend le dessus (override) sur la même section (jail) dans jail.conf,
+
+S’ajoute si la jail n’existe pas dans jail.conf.
+
+Ce que tu définis dans [DEFAULT] de jail.local surcharge également les options [DEFAULT] de jail.conf.
+
+Exemples :
+
+Si [sshd] existe dans les deux fichiers, c’est la version de ` /etc/fail2ban/jail.conf` qui s’applique (les paramètres non spécifiés en local héritent de conf).
+
+## Conclusion
+Fail2Ban est un outil puissant pour protéger votre serveur contre les attaques de force brute, notamment
+les tentatives de connexion SSH. En configurant correctement les jails et en surveillant les logs, vous pouvez réduire considérablement le risque d'intrusion.
+
 Le serveur est maintenant sécurisé contre les attaques de force brute sur le SSH.
+---
+
