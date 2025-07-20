@@ -24,6 +24,10 @@ vérifier si l'ip est bloquée
 sudo iptables -L INPUT -v -n | grep [IP]
 ```
 
+débanir une IP
+```bash
+sudo iptables -D INPUT -s [IP] -j DROP
+```
 
 ## Installer Fail2Ban
 ```bash
