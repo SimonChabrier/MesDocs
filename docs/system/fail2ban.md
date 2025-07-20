@@ -11,20 +11,25 @@ sudo journalctl -u ssh --no-pager | grep "Failed password"
 ```
 
 ## Bloquer les IP malveillantes
+Bloquer une IP malveillante avec UFW (Uncomplicated Firewall) ou iptables.
+
+Avec UFW
+
 ```bash
 sudo ufw deny from [IP]
 ```
 ou avec iptables
+
 ```bash
 sudo iptables -A INPUT -s [IP] -j DROP
 ```
 
-vérifier si l'ip est bloquée
+## Vérifier si l'ip est bloquée dans Iptables
 ```bash
 sudo iptables -L INPUT -v -n | grep [IP]
 ```
 
-débanir une IP
+## Débloquer une IP de Iptables
 ```bash
 sudo iptables -D INPUT -s [IP] -j DROP
 ```
