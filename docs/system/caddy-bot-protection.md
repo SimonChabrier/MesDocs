@@ -56,7 +56,7 @@ description: Explication synthétique de l'utilité, du fonctionnement et de l'i
 
 ## 3. Exemple d’utilisation sur un domaine
 
-```caddyfile
+```shell
 mailhog.simschab.cloud {
 	import log-filter
 	import bot-protection
