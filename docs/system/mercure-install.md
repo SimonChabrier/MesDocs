@@ -1,6 +1,7 @@
 ---
 title: Installer un Hub Mercure
 description: Guide d'installation et de comfigurationd'un serveur Hub sur Ubuntu Server 20.04
+comments: true
 ---
 
 # Installer un Hub Mercure

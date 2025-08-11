@@ -1,6 +1,7 @@
 ---
 title: Créer un utilisateur de base de données sans interface graphique
 description: Créer un utilisateur de base de données sans interface graphique avec Ubuntu 20.04 et MySQL ou MariaDB
+comments: true
 ---
 
 # Créer un utilisateur de base de données sans interface graphique

@@ -1,6 +1,7 @@
 ---
 title: Générer un token JWT pour Mercure
 description: Générer un token JWT pour Mercure avec jwt.io tout en ajoutant des claims pour spécifier les droits de l'utilisateur...
+comments: true
 ---
 
 # Générer un token JWT pour Mercure avec jwt.io

@@ -1,6 +1,7 @@
 ---
 title: Gestion des Sauvegardes Incrémentielles avec rsync et Automatisation viaune tâche cron
 description: Mettre en place une solution de sauvegarde incrémentielle automatisée pour ton système à l'aide de rsync, avec une gestion des logs et une planification via une tâchecron.
+comments: true
 ---
 
 # Gestion des Sauvegardes Incrémentielles avec rsync et Automatisation via cron

@@ -1,6 +1,7 @@
 ---
 title: Caddyfile Directives
 description: Configuration type du Caddyfile pour servir des sites et applications web avec Caddy Serveur
+comments: true
 ---
 
 # Caddyfile Directives

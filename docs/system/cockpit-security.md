@@ -1,6 +1,7 @@
 ---
 title: Sécurisation de Cockpit avec Fail2Ban et comptes dédiés
 description: Restreindre et sécuriser l’accès à l’interface web Cockpit via Fail2Ban, PAM et un compte système dédié.
+comments: true
 ---
 
 # Sécurisation de Cockpit (interface web serveur)

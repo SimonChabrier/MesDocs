@@ -1,6 +1,7 @@
 ---
 title: Identifier sa machine pour GitHub
 description: Comment identifier sa machine pour GitHub en utilisant une clé SSH.
+comments: true
 ---
 
 # Identifier sa machine pour GitHub

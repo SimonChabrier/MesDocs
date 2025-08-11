@@ -1,6 +1,7 @@
 ---
 title: Configuring SSH sur macOS
 tags: Procédure pour configurer un accès serveur SSH sur son host macOS
+comments: true
 ---
 
 # Configurer SSH sur macOS

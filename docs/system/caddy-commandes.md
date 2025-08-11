@@ -1,6 +1,7 @@
 ---
 title: Commandes de base de Caddy
 description: Commandes de base pour gérer le serveur Caddy Serveur et son fichier de configuration Caddyfile
+comments: true
 ---
 
 # Commandes de base de Caddy

@@ -1,6 +1,7 @@
 ---
 title: Autorisations d'écriture sur les fichiers et dossiers du serveur
 description: Gérer les droits d'écriture sur les fichiers et dossiers du serveur, ajouter des utilisateurs à des groupes, et configurer les permissions pour les applications web.
+comments: true
 ---
 
 # Autorisations de production. 

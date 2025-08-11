@@ -1,3 +1,82 @@
-.isso-comment-footer {
+/* === Isso x VitePress — palette uniquement (dark/light), aucun changement d'apparence === */
+
+/* Texte par défaut calé sur VitePress */
+#isso-thread {
+  color: var(--vp-c-text-1);
+  margin: 20px auto !important;
+}
+
+/* Titres/infos secondaires */
+#isso-thread h4.isso-thread-heading,
+#isso-thread .isso-comment-header,
+#isso-thread .isso-comment-footer,
+#isso-thread .isso-note,
+#isso-thread .isso-permalink,
+#isso-thread .isso-spacer,
+#isso-thread .isso-parent,
+#isso-thread .isso-votes {
+  color: var(--vp-c-text-2);
+}
+
+/* Liens d’action (Répondre, Éditer, Supprimer…) et flux */
+#isso-thread .isso-comment-footer a,
+#isso-thread .isso-feedlink a {
+  color: var(--vp-c-brand);
+  text-decoration: none;
+}
+#isso-thread .isso-comment-footer a:hover,
+#isso-thread .isso-feedlink a:hover {
+  filter: brightness(1.1);
+}
+
+/* Champs (textarea + inputs) et aperçu : fond/bordures VP, pas d’ombres */
+#isso-thread .isso-textarea,
+#isso-thread .isso-preview,
+#isso-thread .isso-input-wrapper input {
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  border: 1px solid var(--vp-c-divider);
+  box-shadow: none;
+}
+
+/* Aperçu: fond doux cohérent avec VP */
+#isso-thread .isso-preview {
+  background: var(--vp-c-bg-soft);
+}
+
+/* Avatars & icônes : bordures adoucies */
+#isso-thread .isso-avatar svg,
+#isso-thread .isso-upvote svg,
+#isso-thread .isso-downvote svg {
+  border-color: color-mix(in oklab, var(--vp-c-divider), transparent 0%);
+  box-shadow: none;
+}
+
+/* Séparateurs entre commentaires : même bordure que VP */
+#isso-thread .isso-comment:not(:first-of-type),
+#isso-thread .isso-follow-up .isso-comment {
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+/* Ta règle de mise en ligne des actions — on la conserve */
+#isso-thread .isso-comment-footer {
   display: flex;
+  align-items: center;
+  gap: 8px; /* optionnel : petit espacement régulier */
+}
+
+/* Boutons (postbox) harmonisés avec la couleur de marque */
+#isso-thread .isso-post-action > input {
+  background: var(--vp-c-brand);
+  color: #fff;
+  border: 1px solid var(--vp-c-brand);
+}
+#isso-thread .isso-post-action > input:hover {
+  filter: brightness(0.95);
+}
+
+/* Dark: petite nuance de fond pour les champs (variables VP = auto-dark) */
+html.dark #isso-thread .isso-textarea,
+html.dark #isso-thread .isso-input-wrapper input {
+  background: color-mix(in oklab, var(--vp-c-bg), black 4%);
 }

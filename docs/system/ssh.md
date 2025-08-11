@@ -1,6 +1,7 @@
 ---
 title: Configuration SSH pour l'accès au serveur
 description: Comment configurer l'accès SSH à un serveur, y compris la création de clés SSH, la configuration de l'extension Remote-SSH dans Visual Studio Code, et la gestion des permissions.
+comments: true
 ---
 
 # Commandes récapitulatives pour créer une clée ssh local et la déclarer sur le serveur

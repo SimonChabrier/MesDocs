@@ -1,6 +1,7 @@
 ---
 title: Configurer Cokpit pour accèder à internet.
 description: Comment configurer Cockpit pour accèder à internet sans avoir de problème de connexion et pouvoir mettre à jour le système directement depuis l'interface web.
+comments: true
 ---
 
 

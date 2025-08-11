@@ -1,6 +1,7 @@
 ---
 title: Basic Auth pour sécuriser un site avec Caddy Serveur
 description: Ajouter une couche de sécurité à un site web en utilisant l'authentification de base (Basic Auth) pour protéger l'accès à un site ou une application web statique ou dynamique.
+comments: true
 ---
 
 # Basic Auth pour sécuriser un site avec Caddy Serveur

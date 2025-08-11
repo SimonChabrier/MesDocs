@@ -1,6 +1,7 @@
 ---
 title: Installer et configurer MailHog pour tester l'envoi d'email
 description: Installer et configurer MailHog pour tester l'envoi d'email sur Ubuntu Server 20.04 LTS. ce MailCatcher permet de capturer et visualiser les emails envoyés par les applications web en développement très facilement.
+comments: true
 ---
 
 # Installer et configurer MailHog pour tester l'envoi d'email

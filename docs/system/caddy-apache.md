@@ -1,6 +1,7 @@
 ---
 title: Comment rediriger le trafic entrant de caddy server vers apache2
 description: Rediriger le trafic entrant de caddy vers apache en utilisant un reverse proxy dans caddy pour diriger le trafic entrant sur le port 80 vers apache qui écoutera sur le port 81
+comments: true
 ---
 # Rediriger le trafic entrant de caddy vers apache.
 

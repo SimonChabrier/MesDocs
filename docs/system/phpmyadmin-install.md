@@ -1,6 +1,7 @@
 ---
 tite : phpMyAdmin Installation
 description : Comment installer phpMyAdmin sur Ubuntu Server et Caddy Server
+comments: true
 ---
 
 # Installation de phpMyAdmin compatible PHP 8.2

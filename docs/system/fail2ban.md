@@ -1,6 +1,7 @@
 ---
 title: Sécuriser les tentatives de connexion SSH avec Fail2Ban
 description: Sécuriser les tentatives de connexion SSH avec Fail2Ban pour protéger votre serveur contre les attaques de force brute.
+comments: true
 ---
 
 # Sécuriser les tentatives de connexion SSH avec Fail2Ban

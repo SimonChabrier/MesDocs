@@ -1,6 +1,7 @@
 ---
 title: Matomo - Auto-heberger l'application
 description: Simon Chabrier - Installer Matomo sur un serveur la procédure pour auto-heberger l'application.
+comments: true
 ---
 
 # Installer Matomo sur un serveur et auto-heberger l'application

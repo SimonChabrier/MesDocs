@@ -1,6 +1,7 @@
 ---
 title: Obtenir un certificat SSL local avec Caddy pour HTTPS
 description: Comment obtenir un certificat SSL local avec Caddy pour HTTPS sur votre serveur local.
+comments: true
 ---
 
 # Obtenir un certificat SSL local avec Caddy pour HTTPS

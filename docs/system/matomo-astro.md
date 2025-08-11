@@ -1,6 +1,7 @@
 ---
 title: "Ajouter Matomo à Astro"
 description: "Ce guide explique comment ajouter et configurer Matomo dans un projet Astro pour suivre les visites sur plusieurs domaines en utilisant un fichier JSON et en injectant dynamiquement le code de suivi dans les pages."
+comments: true
 ---
 
 # Ajouter Matomo à Astro
