@@ -1,6 +1,7 @@
 ---
 title: Personnaliser le terminal avec des alias de commandes
 description: Ajouter des alias de commandes pour simplifier l'utilisation du terminal, comme pour git et symfony.
+comments: true
 ---
 
 # Personnaliser le terminal avec des alias de commandes
@@ -24,7 +25,7 @@ nano ~/.zshrc
 - On ajoute autant d'alias qu'on veut, par exemple les alias utilses pour git et symfony avec Edith.
 
 ```bash
-alias virtual='source simon_virtual_env/bin/activate'
+alias virtual='source /home/simon/simon_virtual_env/bin/activate'
 alias opensysd='sudo nano /etc/systemd/system'
 alias addalias='nano ~/.bashrc'
 alias reload='source ~/.bashrc'
