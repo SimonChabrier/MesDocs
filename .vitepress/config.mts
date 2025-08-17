@@ -61,7 +61,6 @@ export default defineConfig({
         {
           text: "🔧 Configuration système",
           items: [
-    { text: "partage", link: "/docs/articles/partage" },
             { text: "Terminal Config", link: "/docs/system/terminal-config" },
             { text: "Rsync sauvegarde", link: "/docs/system/rsync-backup" },
             { text: "Gestion des droits", link: "/docs/system/droits-ecriture" },
