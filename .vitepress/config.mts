@@ -53,7 +53,8 @@ export default defineConfig({
     nav: [
       { text: "Tech", link: "/docs/system/index.md" },
       { text: "Php", link: "/docs/php/index.md" },
-      { text: "Js", link: "/docs/js/index.md" }
+      { text: "Js", link: "/docs/js/index.md" },
+      { text: "Articles", link: "/docs/articles/index.md" }
     ],
     sidebar: {
       "/docs/system/": [
