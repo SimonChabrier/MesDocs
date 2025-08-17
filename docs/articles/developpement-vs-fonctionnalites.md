@@ -1,24 +1,14 @@
 ---
-
 title: Développement global vs ajout de fonctionnalités
-
 description: Pourquoi développer une application, ce n’est pas juste coder une fonctionnalité.
-
 author: Simon Chabrier
-
 tags:
-
 - développement
-
 - architecture
-
 - génie logiciel
-
 - charge mentale
-
 comments: true
-
-—
+---
 
 # Développement global vs ajout de fonctionnalités
 
