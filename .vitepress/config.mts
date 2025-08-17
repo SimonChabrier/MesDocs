@@ -146,7 +146,10 @@ export default defineConfig({
       "/docs/articles/": [
         {
           text: "Articles & Réflexions",
-          items: [{ text: "developpement-vs-fonctionnalites", link: "/docs/articles/developpement-vs-fonctionnalites" }]
+          items: [
+            { text: "developpement-vs-fonctionnalites", link: "/docs/articles/developpement-vs-fonctionnalites" },
+            { text: "user-firendly-not-devloppeur-easy", link: "/docs/articles/user-firendly-not-devloppeur-easy" }
+          ]
         }
       ]
     },
