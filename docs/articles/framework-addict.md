@@ -1,6 +1,6 @@
 ---
-title: Pourquoi choisir un framework reconnu comme Symfony
-description: Le choix de Symfony n'est pas qu'une préférence technique : c'est une décision stratégique pour la gouvernance du code et la pérennité de l'entreprise - Simon Chabrier.
+title: Pourquoi choisir un framework pour développer ?
+description: Le choix d'un framewoek n'est pas qu'une préférence technique - c'est une décision stratégique pour la gouvernance du code et la pérennité de l'entreprise - Simon Chabrier.
 comments: true
 ---
 
