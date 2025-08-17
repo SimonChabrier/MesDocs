@@ -141,6 +141,12 @@ export default defineConfig({
             { text: "VitePress Url Canoniques", link: "/docs/js/vitrepress-canonical" }
           ]
         }
+      ],
+      "/docs/articles/": [
+        {
+          text: "Articles & Réflexions",
+          items: [{}]
+        }
       ]
     },
     footer: {
