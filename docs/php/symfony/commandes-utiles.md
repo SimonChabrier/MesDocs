@@ -6,7 +6,7 @@ description: Comilation des principales commandes terminal utiles dans Symfony p
 ## Commandes basiques utiles dans Symfony
 
 
-### V&rifier ses requi&ements
+### Vérifier ses requirements
 
 ```bash
 symfony check:requirements
