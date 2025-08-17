@@ -147,8 +147,9 @@ export default defineConfig({
         {
           text: "Articles & Réflexions",
           items: [
-            { text: "developpement-vs-fonctionnalites", link: "/docs/articles/developpement-vs-fonctionnalites" },
-            { text: "user-firendly-not-devloppeur-easy", link: "/docs/articles/user-firendly-not-devloppeur-easy" }
+            { text: "Développer n'est pas développer !", link: "/docs/articles/developpement-vs-fonctionnalites" },
+            { text: "Plus c'est user firendly moins c'est développeur easy.", link: "/docs/articles/user-firendly-not-devloppeur-easy" },
+            { text: "Pourquoi opter pour un framewerk dans le développement web ?", link: "/docs/articles/framework-addict" }
           ]
         }
       ]
