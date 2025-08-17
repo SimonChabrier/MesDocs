@@ -146,7 +146,7 @@ export default defineConfig({
       "/docs/articles/": [
         {
           text: "Articles & Réflexions",
-          items: [{}]
+          items: [            { text: "developpement-vs-fonctionnalites", link: "/docs/articles/developpement-vs-fonctionnalites" }]
         }
       ]
     },
