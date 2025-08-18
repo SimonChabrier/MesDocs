@@ -54,6 +54,7 @@ export default defineConfig({
       { text: "Tech", link: "/docs/system/index.md" },
       { text: "Php", link: "/docs/php/index.md" },
       { text: "Js", link: "/docs/js/index.md" },
+      { text: "IA", link: "/docs/ia/index.md" },
       { text: "Articles", link: "/docs/articles/index.md" }
     ],
     sidebar: {
@@ -120,10 +121,6 @@ export default defineConfig({
             { text: "Installer Mercure", link: "/docs/system/mercure-install" },
             { text: "Mercure Jwt", link: "/docs/system/mercure-jwt-generator" }
           ]
-        },
-        {
-          text: "🛠️ IA et Automatisation",
-          items: [{ text: "n8n Install", link: "/docs/system/n8n-install.md" }]
         }
       ],
       "/docs/php/": [
@@ -145,6 +142,12 @@ export default defineConfig({
             { text: "Express App en production", link: "/docs/js/express-app-on-prod-serveur" },
             { text: "VitePress Url Canoniques", link: "/docs/js/vitrepress-canonical" }
           ]
+        }
+      ],
+      "/docs/ia/": [
+        {
+          text: "IA et Automatisation",
+          items: [{ text: "n8n Install", link: "/docs/ia/n8n-install.md" }]
         }
       ],
       "/docs/articles/": [
