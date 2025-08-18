@@ -120,6 +120,10 @@ export default defineConfig({
             { text: "Installer Mercure", link: "/docs/system/mercure-install" },
             { text: "Mercure Jwt", link: "/docs/system/mercure-jwt-generator" }
           ]
+        },
+        {
+          text: "🛠️ IA et Automatisation",
+          items: [{ text: "n8n Install", link: "/docs/system/n8n-install.md" }]
         }
       ],
       "/docs/php/": [
