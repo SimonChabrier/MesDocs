@@ -167,20 +167,14 @@ export default defineConfig({
       copyright: "Sc © 2025"
     }
   },
-  transformPageData(pageData) {
-    // Construction de l'URL canonique
-    const baseUrl = "https://doc.simschab.cloud";
-    let canonicalUrl = `${baseUrl}/${pageData.relativePath}`;
-
-    // Remplacer .md par .html et ajouter le fragment si nécessaire
-    canonicalUrl =
-      canonicalUrl
-        .replace(/\.md$/, ".html") // Remplacer les fichiers .md par .html
-        .replace(/index\.html$/, "") + // Retirer index.html à la racine
-      (pageData.headers?.length ? `#${pageData.headers[0].slug}` : ""); // Ajouter le fragment si nécessaire
-
-    // Ajout de la balise canonical dans le frontmatter
-    pageData.frontmatter.head ??= [];
-    pageData.frontmatter.head.push(["link", { rel: "canonical", href: canonicalUrl }]);
+  // Créer les urls canonique au build.
+  transformHead({ page }) {
+    if (page === "404.md") return [];
+    const HOST = "https://doc.simschab.cloud";
+    const href = (HOST.replace(/\/+$/, "") + "/" + page)
+      .replace(/\/index\.md$/, "/") // dossier racine propre
+      .replace(/\.md$/, ".html") // .md -> .html
+      .replace(/\/+/g, "/"); // pas de //
+    return [["link", { rel: "canonical", href }]];
   }
 });
