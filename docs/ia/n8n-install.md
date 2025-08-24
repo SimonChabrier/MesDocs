@@ -139,6 +139,12 @@ bash -lc 'source ~/.nvm/nvm.sh && nvm use 22 && npm install -g n8n@latest'
 sudo systemctl restart n8n
 ```
 
+## Verifier la version actuelle
+
+```shell
+bash -lc 'source ~/.nvm/nvm.sh && nvm use 22 && npm list -g --depth=0 | grep n8n'
+```
+
 ## Conclusion
 
 Ca prend pas mal de temps et créer des automations n'est pas vraiment intuitif on a vite une usine à gaz. A mon sens n8n est plus adapté pour des automatisations simples et des intégrations de services tiers que pour des workflows complexes. SI on pense l'utiliser pour se simplifier des tâches, il faut vraiment réfléchir à la complexité de ce qu'on veut faire et si on ne peut pas le faire autrement plus facilement car finalement on peut se retourver à passer plus de temps à configurer qu'à automatiser.
