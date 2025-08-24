@@ -90,15 +90,23 @@ Par exemple pour rediriger les requêtes vers un serveur Node.js ou Mercure...
 mondomaine.ext {
     root * /var/www/html/monsite
     file_server
-    try_files {path} {path}/ /index.html   # servire le fichier index.html par défaut
+    try_files {path} {path}/ /index.html   # servir le fichier index.html par défaut
 }
 ```
 
-## Bonus créer des configs
+## Bonus créer des configs réutilisables
 
 Permet de déclarer des configurations réutilisables directement dans le CaddyFile.
 
 ```shell
+
+# un anti bot pour rejeter avant exécution
+(bot-protection) {
+	@_bots {
+		path_regexp wp_paths ^/(wp-admin|wp-content|wp-includes|wp-.*\.php|xmlrpc\.php|\.env(\..*)?$|phpinfo.*|\.git.*|\.aws.*|\.htaccess|\.DS_Store|\.vscode|\.idea|\.editorconfig|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|docker-compose\.ya?ml|application\.properties|settings\.py|config\.env|.*\.(bak|sql|ini|log|conf|yml|old))$
+	}
+	respond @_bots "Access denied" 403
+}
 # Les headers secudisés de base à importer là ou necessaire
 (basic-headers) {
 	header {
@@ -115,8 +123,9 @@ Permet de déclarer des configurations réutilisables directement dans le CaddyF
 
 # on les importe
 mon-sous-domaine.mon-domaine.ext {
+	import bot-protection
 	import basic-headers
-
+	
 	root * /var/www/html/monsite
     file_server
     try_files {path} {path}/ /index.html   # servire le fichier index.html par défaut
