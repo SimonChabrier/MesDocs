@@ -96,7 +96,7 @@ mondomaine.ext {
 
 ## Bonus créer des configs
 
-Permet de déclarer des configurations réutilisables directement dasn le CaddyFile.
+Permet de déclarer des configurations réutilisables directement dans le CaddyFile.
 
 ```shell
 # Les headers secudisés de base à importer là ou necessaire
