@@ -93,3 +93,32 @@ mondomaine.ext {
     try_files {path} {path}/ /index.html   # servire le fichier index.html par défaut
 }
 ```
+
+## Bonus créer des configs
+
+Permet de déclarer des configurations réutilisables directement dasn le CaddyFile.
+
+```shell
+# Les headers secudisés de base à importer là ou necessaire
+(basic-headers) {
+	header {
+		-Server
+		Set-Cookie: __Host-sess=123; path=/; Secure; HttpOnly; SameSite=Lax
+		Permissions-Policy "geolocation=(self), microphone=(), camera=()"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer-when-downgrade"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:;"
+		X-Frame-Options "DENY"
+	}
+}
+
+# on les importe
+mon-sous-domaine.mon-domaine.ext {
+	import basic-headers
+
+	root * /var/www/html/monsite
+    file_server
+    try_files {path} {path}/ /index.html   # servire le fichier index.html par défaut
+}
+```
