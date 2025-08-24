@@ -54,6 +54,7 @@ Environment=WEBHOOK_URL=https://mon-domaine.ext/
 Environment=N8N_EDITOR_BASE_URL=https://mon-domaine.ext/
 Environment=N8N_RUNNERS_ENABLED=true
 Environment=N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+Environment=GENERIC_TIMEZONE=Europe/Paris
 WorkingDirectory=/home/user_name
 ExecStart=/home/user_name/.nvm/versions/node/v22.18.0/bin/node /home/user_name/.nvm/versions/node/v22.18.0/bin/n8n
 Restart=on-failure
@@ -128,6 +129,14 @@ echo "Ouvrir https://mon-domaine.ext/setup et crée l’owner"
 16) **Licence gratuite (optionnel)** | Activer History/Debug/Search/Folders |
 ```sh
 echo "UI: Settings → License → coller la clé reçue par email"
+```
+
+## Mise à jour de version 
+**Derniére version stable**
+
+```shell
+bash -lc 'source ~/.nvm/nvm.sh && nvm use 22 && npm install -g n8n@latest'
+sudo systemctl restart n8n
 ```
 
 ## Conclusion
