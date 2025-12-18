@@ -8,6 +8,16 @@ export default defineConfig({
   head: [
     // Ajout du favicon (obligatoire si tu veux éviter l'erreur 404)
     ["link", { rel: "icon", href: "/favicon.ico" }],
+    // Ajout de la balise meta author globale
+    ["meta", { name: "author", content: "Simon Chabrier" }],
+    // Open Graph / Facebook
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:locale", content: "fr_FR" }],
+    ["meta", { property: "og:site_name", content: "Documentation Simon Chabrier" }],
+    ["meta", { property: "og:image", content: "/og-image.webp" }], // À décommenter quand l'image sera créée
+    // Twitter Card
+    ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:creator", content: "@SimonChabrier" }],
     // Ajout du script Matomo
     [
       "script",
@@ -62,6 +72,7 @@ export default defineConfig({
         {
           text: "🔧 Configuration système",
           items: [
+            { text: "Terminal Commandes", link: "/docs/system/linux-commands-guide" },
             { text: "Terminal Config", link: "/docs/system/terminal-config" },
             { text: "Rsync sauvegarde", link: "/docs/system/rsync-backup" },
             { text: "Gestion des droits", link: "/docs/system/droits-ecriture" },
@@ -130,7 +141,8 @@ export default defineConfig({
             { text: "Symfony", link: "/docs/php/symfony/commandes-utiles.md" },
             { text: "Symfony GitHub Action", link: "/docs/php/symfony/symfony-github-actions.md" },
             { text: "Symfony DebugBar Ajax", link: "/docs/php/symfony/debug-bar-ajax" },
-            { text: "Mercure", link: "/docs/php/symfony/mercure-config" }
+            { text: "Mercure", link: "/docs/php/symfony/mercure-config" },
+            { text: "Php 8.3 pour Symfony en prod", link: "/docs/system/php8.3-prod-config" }
           ]
         }
       ],

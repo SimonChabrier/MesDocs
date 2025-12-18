@@ -1,6 +1,6 @@
 ---
 title: Installer et configurer MailHog pour tester l'envoi d'email
-description: Installer et configurer MailHog pour tester l'envoi d'email sur Ubuntu Server 20.04 LTS. ce MailCatcher permet de capturer et visualiser les emails envoyés par les applications web en développement très facilement.
+description: Installer et configurer MailHog pour tester l'envoi d'email sur Ubuntu Server 20.04 LTS. Ce MailCatcher permet de capturer et visualiser les emails envoyés par les applications web en développement très facilement, avec un service sécurisé et isolé.
 comments: true
 ---
 
@@ -8,24 +8,42 @@ comments: true
 
 ## Installer MailHog
 
+Télécharger le binaire :
+
 ```shell
 wget https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_amd64 -O /usr/local/bin/mailhog
 ```
 
-- DOnner les permissions d'exécution au fichier `mailhog` :
+Rendre le fichier exécutable :
 
 ```shell
 sudo chmod +x /usr/local/bin/mailhog
 ```
 
-## Créer un service systemd pour MailHog
+## Créer un utilisateur système dédié à MailHog
 
+Créer un compte système sans accès shell pour isoler le service :
+
+```shell
+sudo useradd -r -s /usr/sbin/nologin -M -U mailhog
+```
+
+Créer les répertoires nécessaires et ajuster les permissions :
+
+```shell
+sudo mkdir -p /var/lib/mailhog /var/log/mailhog /run/mailhog
+sudo chown -R mailhog:mailhog /usr/local/bin/mailhog /var/lib/mailhog /var/log/mailhog /run/mailhog
+```
+
+## Créer un service systemd pour MailHog
 
 ```shell
 sudo nano /etc/systemd/system/mailhog.service
 ```
 
-```shell
+Contenu du fichier :
+
+```ini
 [Unit]
 Description=MailHog
 After=network.target
@@ -33,9 +51,24 @@ After=network.target
 [Service]
 ExecStart=/usr/local/bin/mailhog
 Restart=always
-User=nobody
-Group=nogroup
+User=mailhog
+Group=mailhog
+RuntimeDirectory=mailhog
+RuntimeDirectoryMode=0755
 ExecStartPre=/bin/sleep 10
+
+# Durcissement du service
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+ReadOnlyPaths=/etc
+ReadWritePaths=/var/lib/mailhog /var/log/mailhog /run/mailhog
+CapabilityBoundingSet=
+AmbientCapabilities=
 
 [Install]
 WantedBy=multi-user.target
@@ -44,13 +77,20 @@ WantedBy=multi-user.target
 ## Activer et démarrer le service MailHog
 
 ```shell
+sudo systemctl daemon-reload
 sudo systemctl enable mailhog
 sudo systemctl start mailhog
 ```
 
+Vérifier le statut :
+
+```shell
+systemctl status mailhog
+```
+
 ## Accéder à l'interface web de MailHog
 
-Créer un sous domaine par exemple `mailhog.mondomaine.ext` et ajouter un enregistrement DNS pour pointer vers l'adresse IP du serveur.
+Créer un sous-domaine (ex. `mailhog.mondomaine.ext`) et pointer son enregistrement DNS vers l’adresse IP du serveur.
 
 ## Configurer CaddyServeur pour MailHog
 
@@ -69,15 +109,17 @@ sudo caddy reload
 
 ## Afficher les emails envoyés
 
-Ouvrir le navigateur et accéder à l'URL de MailHog : `http://mailhog.mondomaine.ext`
+Accéder à l’interface web :  
+`http://mailhog.mondomaine.ext`
 
-## Config symfony pour MailHog
+## Configurer Symfony pour utiliser MailHog
 
-- Dans le fichier `.env.local` ajouter la configuration suivante :
+Dans le fichier `.env.local` :
 
 ```shell
 MAILER_DSN=smtp://localhost:1025
 ```
 
-Fin, tout est ok et fonctionnel pour tester l'envoi d'email avec MailHog en développement sans limitation de volume ni de quota...
+---
 
+MailHog est maintenant isolé, sécurisé et fonctionnel pour tester l’envoi d’emails sans limitation de volume ni de quota.

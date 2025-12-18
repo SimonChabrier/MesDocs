@@ -46,7 +46,7 @@ Contenu du script :
 LOG_DIR="/var/log/caddy"
 LOG_FILES="$LOG_DIR/requests*.json"
 BLACKLIST_FILE="/etc/caddy/blacklist.txt"
-LOCAL_IP="192.168.0.254"
+FAIL2BAN_JAIL="/etc/fail2ban/jail.local" # On récupère la whitelist Fail2Ban pour les IP à ne jamais bloquer
 THRESHOLD=5
 DELAY=180
 
@@ -57,6 +57,7 @@ cleanup() {
 }
 trap cleanup SIGINT SIGTERM
 
+# Vérification des dépendances
 for cmd in iptables jq; do
     if ! command -v $cmd &>/dev/null; then
         echo "Erreur : $cmd non installé"
@@ -66,10 +67,20 @@ done
 
 echo "Démarrage de la surveillance des logs..."
 
+# Récupération dynamique des IP whitelists à partir du jail.local
+readarray -t WHITELIST < <(grep -E '^ignoreip\s*=' "$FAIL2BAN_JAIL" \
+    | sed 's/.*=\s*//' \
+    | tr -s ' ' '\n' \
+    | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}')
+
+echo "IPs en liste blanche (issues de Fail2Ban) : ${WHITELIST[*]}"
+
+# Création de la chaîne BLOCKED si absente
 if ! sudo iptables -L BLOCKED &>/dev/null; then
     sudo iptables -N BLOCKED && echo "Chaîne BLOCKED créée."
 fi
 
+# Boucle principale
 while true; do
     echo "-------------------------------------"
     echo "Analyse des logs à $(date)"
@@ -86,7 +97,7 @@ while true; do
         fi
     done
 
-    # Construction de la liste noire temporaire
+    # Calcul des IP à bloquer selon le seuil et filtrage par la whitelist
     awk -F'\t' '{ ipcount[int($1)" "$2]++ } END {
         for (key in ipcount) {
             split(key, parts, " ")
@@ -94,7 +105,7 @@ while true; do
                 print parts[2]
             }
         }
-    }' "$TMP_FILE" | grep -v "^$LOCAL_IP$" | sort -u > "$BLACKLIST_FILE"
+    }' "$TMP_FILE" | sort -u | grep -v -F -f <(printf "%s\n" "${WHITELIST[@]}") > "$BLACKLIST_FILE"
 
     rm "$TMP_FILE"
 
